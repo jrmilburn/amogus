@@ -1,0 +1,22 @@
+{
+  "name": "@mutiny/client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm assets && vite --host 0.0.0.0",
+    "build": "pnpm assets && tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "assets": "node --import tsx ../../scripts/build-assets.ts",
+    "test": "node --import tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@mutiny/shared": "workspace:*",
+    "@colyseus/sdk": "~0.17.0",
+    "pixi.js": "^8.14.0"
+  },
+  "devDependencies": {
+    "vite": "^7.2.0"
+  }
+}

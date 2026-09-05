@@ -1,0 +1,30 @@
+{
+  "name": "@mutiny/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./maps": {
+      "types": "./dist/maps/index.d.ts",
+      "import": "./dist/maps/index.js"
+    },
+    "./maps/the-hollow.json": "./maps/the-hollow.json"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.check.json",
+    "test": "node --import tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@colyseus/schema": "~4.0.31",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.13"
+  }
+}

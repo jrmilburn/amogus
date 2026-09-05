@@ -1,0 +1,24 @@
+{
+  auto_https off
+}
+
+:80 {
+  encode zstd gzip
+
+  # Strip the shared prefix for BOTH matchmaking HTTP and WebSocket upgrades.
+  @game path /ws /ws/*
+  handle @game {
+    uri strip_prefix /ws
+    reverse_proxy server:2567
+  }
+
+  handle /health {
+    reverse_proxy server:2567
+  }
+
+  handle {
+    root * /srv/client
+    try_files {path} /index.html
+    file_server
+  }
+}

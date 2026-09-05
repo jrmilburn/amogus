@@ -1,0 +1,639 @@
+{
+  "id": "the-hollow",
+  "name": "The Hollow",
+  "version": 1,
+  "size": { "width": 14400, "height": 12400 },
+  "spawnPoints": [
+    { "x": 5060, "y": 6200 },
+    { "x": 5010, "y": 6353 },
+    { "x": 4880, "y": 6447 },
+    { "x": 4720, "y": 6447 },
+    { "x": 4590, "y": 6353 },
+    { "x": 4540, "y": 6200 },
+    { "x": 4590, "y": 6047 },
+    { "x": 4720, "y": 5953 },
+    { "x": 4880, "y": 5953 },
+    { "x": 5010, "y": 6047 }
+  ],
+  "walls": [
+    { "x": 0, "y": 0, "width": 14400, "height": 1100 },
+    { "x": 0, "y": 1100, "width": 900, "height": 1000 },
+    { "x": 2300, "y": 1100, "width": 4200, "height": 320 },
+    { "x": 7900, "y": 1100, "width": 4200, "height": 320 },
+    { "x": 13500, "y": 1100, "width": 900, "height": 1000 },
+    { "x": 2300, "y": 1780, "width": 4200, "height": 320 },
+    { "x": 7900, "y": 1780, "width": 4200, "height": 320 },
+    { "x": 0, "y": 2100, "width": 1420, "height": 8200 },
+    { "x": 1780, "y": 2100, "width": 10840, "height": 1300 },
+    { "x": 12980, "y": 2100, "width": 1420, "height": 8200 },
+    { "x": 1780, "y": 3400, "width": 2320, "height": 1000 },
+    { "x": 5500, "y": 3400, "width": 7120, "height": 1000 },
+    { "x": 1780, "y": 4400, "width": 2840, "height": 1100 },
+    { "x": 4980, "y": 4400, "width": 7640, "height": 1100 },
+    { "x": 1780, "y": 5500, "width": 2220, "height": 520 },
+    { "x": 5600, "y": 5500, "width": 3200, "height": 520 },
+    { "x": 10400, "y": 5500, "width": 2220, "height": 520 },
+    { "x": 1780, "y": 6380, "width": 2220, "height": 520 },
+    { "x": 5600, "y": 6380, "width": 3200, "height": 520 },
+    { "x": 10400, "y": 6380, "width": 2220, "height": 520 },
+    { "x": 1780, "y": 6900, "width": 7640, "height": 1100 },
+    { "x": 9780, "y": 6900, "width": 2840, "height": 1100 },
+    { "x": 1780, "y": 8000, "width": 7120, "height": 1000 },
+    { "x": 10300, "y": 8000, "width": 2320, "height": 1000 },
+    { "x": 1780, "y": 9000, "width": 10840, "height": 1300 },
+    { "x": 0, "y": 10300, "width": 900, "height": 1000 },
+    { "x": 2300, "y": 10300, "width": 4200, "height": 320 },
+    { "x": 7900, "y": 10300, "width": 4200, "height": 320 },
+    { "x": 13500, "y": 10300, "width": 900, "height": 1000 },
+    { "x": 2300, "y": 10980, "width": 4200, "height": 320 },
+    { "x": 7900, "y": 10980, "width": 4200, "height": 320 },
+    { "x": 0, "y": 11300, "width": 14400, "height": 1100 }
+  ],
+  "rooms": [
+    {
+      "id": "dock",
+      "name": "Dock",
+      "polygon": [
+        { "x": 900, "y": 1100 },
+        { "x": 2300, "y": 1100 },
+        { "x": 2300, "y": 2100 },
+        { "x": 900, "y": 2100 }
+      ],
+      "kind": "ring"
+    },
+    {
+      "id": "relay",
+      "name": "Relay",
+      "polygon": [
+        { "x": 6500, "y": 1100 },
+        { "x": 7900, "y": 1100 },
+        { "x": 7900, "y": 2100 },
+        { "x": 6500, "y": 2100 }
+      ],
+      "kind": "ring"
+    },
+    {
+      "id": "cryo",
+      "name": "Cryo Lab",
+      "polygon": [
+        { "x": 12100, "y": 1100 },
+        { "x": 13500, "y": 1100 },
+        { "x": 13500, "y": 2100 },
+        { "x": 12100, "y": 2100 }
+      ],
+      "kind": "ring"
+    },
+    {
+      "id": "engine",
+      "name": "Engine House",
+      "polygon": [
+        { "x": 12100, "y": 10300 },
+        { "x": 13500, "y": 10300 },
+        { "x": 13500, "y": 11300 },
+        { "x": 12100, "y": 11300 }
+      ],
+      "kind": "ring"
+    },
+    {
+      "id": "stores",
+      "name": "Stores",
+      "polygon": [
+        { "x": 6500, "y": 10300 },
+        { "x": 7900, "y": 10300 },
+        { "x": 7900, "y": 11300 },
+        { "x": 6500, "y": 11300 }
+      ],
+      "kind": "ring"
+    },
+    {
+      "id": "scrubber",
+      "name": "Scrubber",
+      "polygon": [
+        { "x": 900, "y": 10300 },
+        { "x": 2300, "y": 10300 },
+        { "x": 2300, "y": 11300 },
+        { "x": 900, "y": 11300 }
+      ],
+      "kind": "ring"
+    },
+    {
+      "id": "commons",
+      "name": "Commons",
+      "polygon": [
+        { "x": 4000, "y": 5500 },
+        { "x": 5600, "y": 5500 },
+        { "x": 5600, "y": 6900 },
+        { "x": 4000, "y": 6900 }
+      ],
+      "kind": "hub"
+    },
+    {
+      "id": "switchyard",
+      "name": "Switchyard",
+      "polygon": [
+        { "x": 8800, "y": 5500 },
+        { "x": 10400, "y": 5500 },
+        { "x": 10400, "y": 6900 },
+        { "x": 8800, "y": 6900 }
+      ],
+      "kind": "hub"
+    },
+    {
+      "id": "archive",
+      "name": "Archive",
+      "polygon": [
+        { "x": 4100, "y": 3400 },
+        { "x": 5500, "y": 3400 },
+        { "x": 5500, "y": 4400 },
+        { "x": 4100, "y": 4400 }
+      ],
+      "kind": "dead-end"
+    },
+    {
+      "id": "reactor",
+      "name": "Reactor Well",
+      "polygon": [
+        { "x": 8900, "y": 8000 },
+        { "x": 10300, "y": 8000 },
+        { "x": 10300, "y": 9000 },
+        { "x": 8900, "y": 9000 }
+      ],
+      "kind": "dead-end"
+    }
+  ],
+  "corridors": [
+    { "x": 1600, "y": 1420, "width": 11200, "height": 360, "id": "north-run" },
+    { "x": 12620, "y": 1600, "width": 360, "height": 9200, "id": "east-run" },
+    { "x": 1600, "y": 10620, "width": 11200, "height": 360, "id": "south-run" },
+    { "x": 1420, "y": 1600, "width": 360, "height": 9200, "id": "west-run" },
+    {
+      "x": 1600,
+      "y": 6020,
+      "width": 11200,
+      "height": 360,
+      "id": "cross-station"
+    },
+    {
+      "x": 4620,
+      "y": 3900,
+      "width": 360,
+      "height": 2300,
+      "id": "archive-spur"
+    },
+    { "x": 9420, "y": 6200, "width": 360, "height": 2300, "id": "reactor-spur" }
+  ],
+  "tasks": [
+    {
+      "x": 1240,
+      "y": 1380,
+      "id": "dock-gyro",
+      "type": "calibrate-gyro",
+      "room": "dock",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 1960,
+      "y": 1380,
+      "id": "dock-id",
+      "type": "scan-id",
+      "room": "dock",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 6840,
+      "y": 1380,
+      "id": "relay-gyro",
+      "type": "calibrate-gyro",
+      "room": "relay",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 13160,
+      "y": 1380,
+      "id": "cryo-samples",
+      "type": "sort-samples",
+      "room": "cryo",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 12440,
+      "y": 11020,
+      "id": "engine-power",
+      "type": "reroute-power",
+      "room": "engine",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 6840,
+      "y": 11020,
+      "id": "stores-duct",
+      "type": "clear-vents",
+      "room": "stores",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 7560,
+      "y": 11020,
+      "id": "stores-id",
+      "type": "scan-id",
+      "room": "stores",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 1240,
+      "y": 11020,
+      "id": "scrubber-samples",
+      "type": "sort-samples",
+      "room": "scrubber",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 4350,
+      "y": 5850,
+      "id": "commons-code",
+      "type": "enter-access-code",
+      "room": "commons",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 10050,
+      "y": 5850,
+      "id": "switchyard-power",
+      "type": "reroute-power",
+      "room": "switchyard",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 4440,
+      "y": 3680,
+      "id": "archive-code",
+      "type": "enter-access-code",
+      "room": "archive",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 9240,
+      "y": 8720,
+      "id": "reactor-duct",
+      "type": "clear-vents",
+      "room": "reactor",
+      "length": "short",
+      "stage": 1
+    },
+    {
+      "x": 6840,
+      "y": 1600,
+      "id": "relay-data-start",
+      "type": "data-transfer",
+      "room": "relay",
+      "length": "long",
+      "stage": 1,
+      "nextTaskId": "relay-data-finish"
+    },
+    {
+      "x": 5160,
+      "y": 3900,
+      "id": "relay-data-finish",
+      "type": "data-transfer",
+      "room": "archive",
+      "length": "long",
+      "stage": 2
+    },
+    {
+      "x": 12440,
+      "y": 1600,
+      "id": "cryo-data-start",
+      "type": "data-transfer",
+      "room": "cryo",
+      "length": "long",
+      "stage": 1,
+      "nextTaskId": "cryo-data-finish"
+    },
+    {
+      "x": 9960,
+      "y": 6200,
+      "id": "cryo-data-finish",
+      "type": "data-transfer",
+      "room": "switchyard",
+      "length": "long",
+      "stage": 2
+    },
+    {
+      "x": 6840,
+      "y": 10800,
+      "id": "engine-fuel-start",
+      "type": "fuel-engines",
+      "room": "stores",
+      "length": "long",
+      "stage": 1,
+      "nextTaskId": "engine-fuel-finish"
+    },
+    {
+      "x": 13160,
+      "y": 10800,
+      "id": "engine-fuel-finish",
+      "type": "fuel-engines",
+      "room": "engine",
+      "length": "long",
+      "stage": 2
+    }
+  ],
+  "vents": [
+    {
+      "x": 2000,
+      "y": 1900,
+      "id": "dock-vent",
+      "room": "dock",
+      "links": ["archive-vent", "scrubber-vent"]
+    },
+    {
+      "x": 5200,
+      "y": 4200,
+      "id": "archive-vent",
+      "room": "archive",
+      "links": ["dock-vent", "scrubber-vent"]
+    },
+    {
+      "x": 2000,
+      "y": 11100,
+      "id": "scrubber-vent",
+      "room": "scrubber",
+      "links": ["dock-vent", "archive-vent"]
+    },
+    {
+      "x": 7600,
+      "y": 1900,
+      "id": "relay-vent",
+      "room": "relay",
+      "links": ["cryo-vent", "switchyard-vent"]
+    },
+    {
+      "x": 13200,
+      "y": 1900,
+      "id": "cryo-vent",
+      "room": "cryo",
+      "links": ["relay-vent", "switchyard-vent"]
+    },
+    {
+      "x": 10000,
+      "y": 6500,
+      "id": "switchyard-vent",
+      "room": "switchyard",
+      "links": ["relay-vent", "cryo-vent"]
+    },
+    {
+      "x": 7600,
+      "y": 11100,
+      "id": "stores-vent",
+      "room": "stores",
+      "links": ["engine-vent", "reactor-vent"]
+    },
+    {
+      "x": 13200,
+      "y": 11100,
+      "id": "engine-vent",
+      "room": "engine",
+      "links": ["stores-vent", "reactor-vent"]
+    },
+    {
+      "x": 10000,
+      "y": 8800,
+      "id": "reactor-vent",
+      "room": "reactor",
+      "links": ["stores-vent", "engine-vent"]
+    }
+  ],
+  "doors": [
+    {
+      "x": 2276,
+      "y": 1420,
+      "width": 48,
+      "height": 360,
+      "id": "dock-east",
+      "room": "dock"
+    },
+    {
+      "x": 1420,
+      "y": 2076,
+      "width": 360,
+      "height": 48,
+      "id": "dock-south",
+      "room": "dock"
+    },
+    {
+      "x": 7876,
+      "y": 1420,
+      "width": 48,
+      "height": 360,
+      "id": "relay-east",
+      "room": "relay"
+    },
+    {
+      "x": 6476,
+      "y": 1420,
+      "width": 48,
+      "height": 360,
+      "id": "relay-west",
+      "room": "relay"
+    },
+    {
+      "x": 12076,
+      "y": 1420,
+      "width": 48,
+      "height": 360,
+      "id": "cryo-west",
+      "room": "cryo"
+    },
+    {
+      "x": 12620,
+      "y": 2076,
+      "width": 360,
+      "height": 48,
+      "id": "cryo-south",
+      "room": "cryo"
+    },
+    {
+      "x": 12076,
+      "y": 10620,
+      "width": 48,
+      "height": 360,
+      "id": "engine-west",
+      "room": "engine"
+    },
+    {
+      "x": 12620,
+      "y": 10276,
+      "width": 360,
+      "height": 48,
+      "id": "engine-north",
+      "room": "engine"
+    },
+    {
+      "x": 6476,
+      "y": 10620,
+      "width": 48,
+      "height": 360,
+      "id": "stores-west",
+      "room": "stores"
+    },
+    {
+      "x": 7876,
+      "y": 10620,
+      "width": 48,
+      "height": 360,
+      "id": "stores-east",
+      "room": "stores"
+    },
+    {
+      "x": 2276,
+      "y": 10620,
+      "width": 48,
+      "height": 360,
+      "id": "scrubber-east",
+      "room": "scrubber"
+    },
+    {
+      "x": 1420,
+      "y": 10276,
+      "width": 360,
+      "height": 48,
+      "id": "scrubber-north",
+      "room": "scrubber"
+    },
+    {
+      "x": 3976,
+      "y": 6020,
+      "width": 48,
+      "height": 360,
+      "id": "commons-west",
+      "room": "commons"
+    },
+    {
+      "x": 5576,
+      "y": 6020,
+      "width": 48,
+      "height": 360,
+      "id": "commons-east",
+      "room": "commons"
+    },
+    {
+      "x": 4620,
+      "y": 5476,
+      "width": 360,
+      "height": 48,
+      "id": "commons-north",
+      "room": "commons"
+    },
+    {
+      "x": 8776,
+      "y": 6020,
+      "width": 48,
+      "height": 360,
+      "id": "switchyard-west",
+      "room": "switchyard"
+    },
+    {
+      "x": 10376,
+      "y": 6020,
+      "width": 48,
+      "height": 360,
+      "id": "switchyard-east",
+      "room": "switchyard"
+    },
+    {
+      "x": 9420,
+      "y": 6876,
+      "width": 360,
+      "height": 48,
+      "id": "switchyard-south",
+      "room": "switchyard"
+    },
+    {
+      "x": 4620,
+      "y": 4376,
+      "width": 360,
+      "height": 48,
+      "id": "archive-south",
+      "room": "archive"
+    },
+    {
+      "x": 9420,
+      "y": 7976,
+      "width": 360,
+      "height": 48,
+      "id": "reactor-north",
+      "room": "reactor"
+    }
+  ],
+  "sabotagePoints": [
+    {
+      "x": 9150,
+      "y": 5850,
+      "id": "lights-panel",
+      "room": "switchyard",
+      "kind": "lights"
+    },
+    {
+      "x": 9240,
+      "y": 8280,
+      "id": "reactor-a",
+      "room": "reactor",
+      "kind": "reactor-a"
+    },
+    {
+      "x": 9960,
+      "y": 8280,
+      "id": "reactor-b",
+      "room": "reactor",
+      "kind": "reactor-b"
+    },
+    { "x": 1240, "y": 10580, "id": "o2-a", "room": "scrubber", "kind": "o2-a" },
+    { "x": 12440, "y": 1380, "id": "o2-b", "room": "cryo", "kind": "o2-b" },
+    {
+      "x": 7560,
+      "y": 1380,
+      "id": "comms-panel",
+      "room": "relay",
+      "kind": "comms"
+    }
+  ],
+  "emergencyButton": { "x": 4800, "y": 6200 },
+  "cameras": [
+    {
+      "x": 1600,
+      "y": 1250,
+      "id": "dock-camera",
+      "room": "dock",
+      "facing": 1.5707963267948966
+    },
+    {
+      "x": 12800,
+      "y": 11150,
+      "id": "engine-camera",
+      "room": "engine",
+      "facing": -1.5707963267948966
+    }
+  ],
+  "reviewCircuit": [
+    { "x": 1600, "y": 1600 },
+    { "x": 7200, "y": 1600 },
+    { "x": 12800, "y": 1600 },
+    { "x": 12800, "y": 6200 },
+    { "x": 12800, "y": 10800 },
+    { "x": 7200, "y": 10800 },
+    { "x": 1600, "y": 10800 },
+    { "x": 1600, "y": 6200 },
+    { "x": 1600, "y": 1600 }
+  ]
+}
