@@ -6,7 +6,7 @@
 
 Import `MapDefSchema`, the inferred `MapDef` type, and geometry helpers from `@mutiny/shared/maps`. The JSON is also exported as `@mutiny/shared/maps/the-hollow.json`. Keeping this separate from the shared root entry prevents the lobby from loading map validation or map data before it needs them.
 
-- Coordinates are world pixels with origin at the top-left; x increases right, y increases down. Map bounds are 14,400 × 12,400. Camera facing uses radians.
+- Coordinates are world pixels with origin at the top-left; x increases right, y increases down. Map bounds are 10,800 × 9,300 after the user-requested compact pass. Camera facing uses radians.
 - `rooms[].polygon` contains simple orthogonal vertices with no repeated closing vertex. Room IDs are the location/sabotage references; names are display text.
 - `corridors[]` is an intentional extension to the plan: explicit rectangular floor footprints for the renderer. Floor is the union of room polygons and corridors. Everything else, including the central void and outside hull, is solid.
 - `walls[]` is the generated, merged rectangle complement of the floor footprints. The current layout needs 32 collision rectangles. Outer world bounds must also constrain movement.
@@ -17,9 +17,9 @@ Import `MapDefSchema`, the inferred `MapDef` type, and geometry helpers from `@m
 
 ## Scale and balance
 
-The perimeter centre line is 40,800 px, or **255 seconds (4m 15s)** at the default 160 px/s. This is uninterrupted travel with doors open, not a measured game duration. Corridors are 360 px wide. Validation and reachability tests use a **24 px collision radius**; #7 should reuse that assumption or revalidate the layout if changing it. The character's artwork may be larger than its collision footprint.
+The perimeter centre line is 30,600 px, or **153 seconds (2m33s)** at the current default 200 px/s. The compact pass reduces world dimensions and travel distances by 25% (floor area by 43.75%) while preserving the topology. This supersedes the original #5 circuit-duration target at the user's request. Corridors are now 270px wide; ring/dead-end rooms are 1,050 × 750px and hubs are 1,200 × 1,050px. These are uninterrupted travel measurements with doors open, not a game duration. Validation and reachability tests retain the **24px collision radius** and unchanged player artwork size.
 
-Central shortcuts create two smaller walking loops. Archive and Reactor Well each have one walking entrance and a vent escape for impostors. Commons contains the emergency button and a circle of ten non-overlapping spawns. Large travel distances are intentional to meet the plan's circuit target; real playtests may justify shrinking them later.
+Central shortcuts create two smaller walking loops. Archive and Reactor Well each have one walking entrance and a vent escape for impostors. Commons contains the emergency button and a circle of ten non-overlapping spawns. All task IDs/chains and vent links are preserved. The Stores ID reader was moved away from its vent to retain clear instrument spacing after compaction.
 
 ## Edit and review
 

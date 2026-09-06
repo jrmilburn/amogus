@@ -58,12 +58,167 @@
 - Chrome checks passed at desktop/landscape-phone/portrait sizes and DPR 1/2: rendering, culling, resize, entity sorting, failed/delayed loading, close/reopen, touch dragging, all ten room jumps, and lobby preservation. Local stationary frame intervals: ~16.7ms median / ~16.7–16.8ms p95; update CPU p95 ~0.1–0.2ms. This is not a physical-phone benchmark. Screenshots: `docs/maps/renderer-commons.png`, `docs/maps/renderer-mobile.png`.
 - Verification passed: lint, typecheck, all 13 tests, and production build (tests/build under Node 22). Build emits two upstream Zod/Rollup comment-annotation warnings but succeeds. Required 2020-era laptop / mid-range Android FPS acceptance remains unverified. Ambient glow is present; occluded vision belongs to #13, movement to #7, and character art to #8.
 
-## Resume here
+## 2026-09-06 — Player movement
 
-1. Continue with #7 authoritative movement, prediction/reconciliation, interpolation, and desktop/touch input. #7–#24 are not implemented. Use the renderer's live camera target and entity APIs; preserve or revalidate the map's 24px collision radius.
-2. #8 character art can follow #6. Continue using `/impeccable` for every screen, including basic HUD/loading UI.
-3. For #9 assignment, choose only task records with `stage: 1`; follow `nextTaskId` for long-task destinations. There are three complete long assignments.
+### #7 — Implemented; browser/device acceptance pending
+
+- Added shared deterministic swept-circle collision with a 24px radius, wall sliding, normalized direction, analog speed, and map bounds. Server simulation consumes at most one 50ms command per player per tick, bounds its queue, rejects malformed/replayed input, and clears movement during frozen phases. Joins use map spawn points.
+- Added own-player prediction/reconciliation, fractional frame movement, 100ms remote interpolation, facing and public walking state. Client queues are bounded; hidden/blurred views release input, and leaving/closing cleans up listeners. Movement is allowed in the lobby walkaround and future `playing`; roles, tasks, rounds, and ghosts remain deferred.
+- Applied Impeccable to the existing map surface: **Walk around** in a lobby follows numbered/named crew markers with WASD/arrows and a floating touch joystick. Back/Escape keeps the lobby connection. The landing-page free-camera preview remains available. Character sprites are #8.
+- Verification passed under Node 22.23.1: lint, typecheck, all 22 tests, and production build. Tests include full-circuit movement, wall/corner collision, replay/overflow/phase guards, real two-client position/acknowledgement synchronization, and deterministic 100ms RTT reconciliation. Build retains the two existing upstream Zod/Rollup annotation warnings. Running dev client responds HTTP 200 and server health returns `{ ok: true, rooms: 0 }`.
+- Impeccable detector returned no findings; finishing review corrected low-frame-rate input accumulation. Browser automation was unavailable, so desktop/mobile visual review, touch-device behavior, and the two-browser 100ms RTT smoothness acceptance remain unverified. Existing #6 screenshots do not verify #7.
+- Prettier now preserves checkout line endings (`endOfLine: auto`) so Windows CRLF checkouts pass formatting without rewriting unrelated files.
+
+## 2026-09-06 — Character art and animation
+
+### #8 — Implemented; browser/device playback acceptance pending
+
+- Created original articulated engineer art with the built-in ImageGen tool. Source sheet and exact prompt are tracked under `packages/client/art/engineer/`. The local builder rigs that source into a reproducible 111-frame layered atlas: idle 4, walk 8, vent enter 6, vent exit 6, killed 8, ghost 4, and body 1, each with separate pack/suit/visor layers. Standing art is 128px high; the 24px collision footprint is unchanged.
+- Replaced temporary walkaround markers with synchronized Pixi AnimatedSprites, suit-only colour tinting, untinted cyan glass/equipment, upright names and numbered badges, facing flips, shadows, and reduced-motion behavior. Character identity text keeps a 12px minimum screen size. Red names require private impostor knowledge; no public role state was introduced.
+- Added local `?view=characters` rehearsal for all twelve colours and all clips, with replay and a three-column portrait layout. Live walking drives idle/walk; later game milestones still own role assignment, vent actions, kills, and ghosts. Client tests/dev/build regenerate assets from the checked-in source without network access.
+- Inspected colour lineup and animation contact sheets in `docs/art/`. Impeccable finishing review prompted larger phone identifiers and a shaded ghost tail; mechanical detector returned no findings. Docs/API: `docs/design/characters.md`.
+- Verification passed under Node 22.23.1: lint, typecheck, all 26 tests, production build, runtime atlas HTTP responses, and server health. Tests exercise tint separation, synchronized frame advancement, state transitions, reduced motion, private name colouring, texture ownership, and atlas integrity. Build retains the two existing Zod/Rollup annotation warnings.
+- Browser automation was unavailable. Actual desktop/mobile Pixi playback, facing, close/reopen, reduced-motion presentation, and mobile label readability remain manual acceptance checks. The user confirmed the basic #7 walkaround works; the earlier multiplayer latency/device checks remain pending.
+
+## 2026-09-06 — Game start and faster default
+
+### #9 — Implemented; browser/device reveal acceptance pending
+
+- Raised default speed from 160 to 200px/s at the user's request (25% faster); full collision circuit now takes about 3m24s. Existing room settings are retained until a new room is created or the host changes speed.
+- Added server-randomized private roles, unique short/long task assignments and matching fake lists, spawn reset, a three-second frozen reveal, automatic playing transition and full initial kill cooldown. Public round IDs/deadlines contain no roles or task lists. Private deliveries follow the state patch; stale client deliveries are ignored.
+- Added private role reveal and persistent assignment disclosure using Impeccable's established station styling. Finishing review prompted one-time role/team announcements, focus transfer and inert covered controls. Native details, scrolling and reduced-motion styling support smaller screens. Task interactions and impostor actions remain explicitly deferred.
+- Host reset works during reveal/play; any reveal departure cancels the timer and clears assignments. Server-only progress excludes fake tasks. No task completion or kill handler is implemented yet.
+- Verification: Node 22 lint, typecheck, all 29 tests (including five real clients, assignment/privacy/phase/cancellation and stale private model checks), and production build passed. Build retains existing upstream Zod/Rollup annotation warnings. Detector reported no findings on round UI/main/index; browser automation unavailable, so visual/mobile/focus/screen-reader acceptance remains pending. See `docs/design/game-start.md`.
+
+## 2026-09-06 — Task framework
+
+### #10 — Implemented; browser/device interaction acceptance pending
+
+- Added nearest assigned station highlight within 80px, E/touch Use, top-left collapsible task list with Done ticks and current long-task stages, and green shared crew progress bar.
+- Added `TaskMinigame` mount/unmount contract and labelled two-second hold placeholder supporting pointer/touch/Space/Enter, release reset, Esc/× cancellation, server acknowledgement and private movement freeze. Earlier long-task stages survive cancellation.
+- Server checks phase, life, role, assignment, current-stage proximity, round ID, single-use session token and minimum duration. Fake tasks never contribute; duplicate, stale, remote and early submissions reject. Reset/leave/expiry clear private sessions. Current-stage geometry is shared without exposing assignments.
+- Impeccable finishing review corrected narrow-landscape HUD overlap and modal keyboard scrolling. Detector found no issues. Browser inventory is empty, so rendered/mobile/keyboard/focus acceptance remains pending; see `docs/design/tasks.md`.
+- Verification passed under Node 22: lint, typecheck, all 30 tests and production build. Added validation/stage/replay tests and extended five-client integration through real task completion and shared progress synchronization (float32 tolerance). Existing upstream Zod/Rollup annotation warnings remain. Browser/device acceptance is not covered by these tests.
+
+## 2026-09-06 — Task minigames, batch A
+
+### #11 — Implemented; browser/device playtest acceptance pending
+
+- Replaced hold placeholders for reroute power (four labelled cables), calibrate gyro (three separate green-band crossings), data transfer (eight-second download/upload stages) and sort samples (six labelled vials/racks). The other four types retain the #10 hold fallback until #12.
+- Added original CSS/SVG instrument art, captured drags with edge scrolling, tap/keyboard matching, active-time pause, reduced-motion gyro speed and per-game SFX hooks. Audio playback remains #19. Cancellation/unmount removes listeners, timers, observers and completion callbacks.
+- Shared/server timing now uses 5s minimum for matching/gyro and 8s for each data stage. Existing private session, proximity, stage, role and replay guards remain. Client puzzle input is not server-verified; minimum time is not anti-cheat proof.
+- Impeccable review added edge autoscroll for offscreen matching targets; one detector warning was intentionally retained for the vial's drawn cap. Browser inventory is empty, so rendered/touch/keyboard and 5–15s playtest acceptance remain pending. Full data-transfer assignments require 16s plus travel; the duration target is per station. See `docs/design/minigames-a.md`.
+- Verification passed under Node 22: lint, typecheck, all 38 tests and production build; client HTTP 200 and server health OK. Tests cover client puzzle models, each server task type's timing/stages and the existing five-client integration. Existing upstream Zod/Rollup annotation warnings remain. No browser/device playtest was available.
+
+## 2026-09-06 — Task minigames, batch B
+
+### #12 — Implemented; browser/device playtest acceptance pending
+
+- Added fuel canister fill/empty (5s holds at separate stations), five-piece duct debris removal, two-second five-digit memory keypad and ID reader with 800–1600ms swipe validation and reversal detection. All eight mapped task types now have minigames.
+- Added original CSS instrument art and existing sound hooks, captured drags, select/remove and hold-to-swipe keyboard alternatives, labelled controls, local retry feedback, and shared lifecycle cleanup. Fuel's completed first stage persists through second-stage cancellation.
+- Shared timing now enforces 5s per non-data station, 8s for data. The server retains role/proximity/token/stage guards; client puzzle actions remain a documented trust boundary. Added four client model tests and expanded server timing/stage tests to all eight types.
+- Impeccable detector returned no findings and finishing source review identified no material defect. No browser is available, so rendered/mobile/keyboard and measured completion-time acceptance remain pending. See `docs/design/minigames-b.md`.
+- Verification passed under Node 22: all 46 tests, typecheck, lint and production build. Local client responds HTTP 200 and server health is OK. Existing upstream Zod/Rollup annotation warnings remain; browser/device playtesting was unavailable.
+
+## 2026-09-06 — Vision and lighting
+
+### #13 — Implemented; browser/device/GPU acceptance pending
+
+- Added wall-corner ray-cast visibility, a reusable radial/polygon render-texture mask and fullscreen darkness overlay. Existing warm lamp glows stay inside the visible field; HUD remains unaffected. Active rounds follow the predicted player; lobby/free previews remain fully lit.
+- Private role selects 650px × crew/impostor vision setting. Generic renderer entities (including future registered bodies) stop rendering outside the visible polygon, independently of vent hiding. Added crew-only `setVisionMultiplier(0..1)`, closed-door occluder and point-visibility APIs for #15; no sabotage gameplay or network schema changes.
+- Added doorway/corner/closed-door, ray/bounds/seam, cache and role-setting tests. The Hollow moving-view benchmark with ten entity queries measured ~0.031ms median / ~0.086ms p95 CPU-only; render-texture/filter/GPU costs and the total <2ms target remain unverified. Diagnostics expose lighting update/submission time and mask redraw count.
+- Impeccable detector returned no findings; finishing review prompted a separate local-engineer foreground so nearby walls cannot obscure your own body/name while remote entities remain occluded. Browser inventory remains empty; visual masking, mobile/DPR, lifecycle and actual frame-budget acceptance are pending. See `docs/design/lighting.md`.
+- Verification passed under Node 22: all 50 tests, lint, typecheck and production build; local client HTTP 200 and server health OK. Existing upstream Zod/Rollup annotation warnings remain. Browser compositing, GPU timing and target-device acceptance are still pending.
+
+## 2026-09-06 — Impostor actions
+
+### #14 — Implemented; browser/device acceptance pending
+
+- Added Q/touch kills within 60px, server cooldowns, role/life/phase/round/range/wall validation, killer teleport, victim death and public body entities. Victim task sessions and both movement queues are cleared. Only killer/victim receive the private kill event; bodies reveal no killer identity and use renderer visibility gating.
+- Added V/touch vent entry within 80px, private current-vent tracking, linked-only instant travel and exact-location exit. Vented avatars never render and movement cannot displace them. Cooldown/vent status is private, handles clock skew, persists across map close/reopen and clears on reset. Bodies persist after victim departure but clear on reset/start.
+- Fake assignments now open all existing minigames with red cover-only labels; local completion sends cancellation, never completion. The server independently rejects forged fake completions, including valid tokens, without changing task progress. Fellow impostor names remain private/red.
+- Impeccable shaped the three-button HUD, target cue, scrollable linked routes, bounded killer lunge and brief victim signal-loss cut-in with reduced-motion support. Detector found no issues; independent source review corrected keyboard movement interception inside vent routes. Browser inventory is empty, so rendered/touch/focus/effects/lifecycle acceptance remains pending. See `docs/design/impostor-actions.md`.
+- Verification passed under Node 22: all 55 tests, lint, typecheck and production build. New guard/clock-skew/strike tests and five real clients cover body synchronization, cooldown denial, forged crew actions, kill-during-task cancellation, vent links/immobility and reset. Local client responds HTTP 200 and server health is OK. The two existing upstream Zod/Rollup annotation warnings remain; browser/device acceptance is still pending.
+
+## 2026-09-06 — Compact map, room themes and minimap
+
+- Implemented the user's requested interlude before #15. Map dimensions/room sizes/travel distances are 25% smaller (10,800 × 9,300; 270px corridors), reducing the outer walking loop from 204s to 153s at the unchanged 200px/s default. All task chains, vent networks and floor connectivity remain intact; Stores' ID reader moved clear of its vent.
+- Added fourteen original code-native atlas props (24 total textures), task-specific instrument art, room floor tints/purpose text and service-channel markings. Archive has files/data storage, Relay has communication hardware, Cryo has three frozen engineers, Engine has machinery, Stores has provisions/spare suits, Scrubber has filtration/cleaning equipment, Commons has mess tables, Switchyard has switchgear; Dock/Reactor also received themed equipment. Dressing remains non-colliding, as in #6.
+- Added collapsible top-left minimap showing public floor geometry and only local position. It starts folded on smaller screens, reflows assignments/progress, preserves movement after toggling, and cleans up its resize observer on close.
+- Impeccable detector found no issues; independent source review prompted narrow-landscape HUD and keyboard-continuity fixes. Generated/inspected actual atlas/placement contact sheets under `docs/maps/`; these are not gameplay screenshots. Browser inventory is empty, so live lighting/actors/HUD/mobile/focus/performance acceptance remains pending. Details: `docs/design/map-refresh.md`.
+- Verification passed under Node 22: all 58 tests, typecheck, lint and production build. Coverage includes compact circuit/reachability, artwork/interaction clearance and minimap projection. Local client responds HTTP 200 and server health is OK. The two existing upstream Zod/Rollup annotation warnings remain. Live browser/mobile acceptance is pending.
+
+## 2026-09-06 — Sabotage
+
+### #15 — Implemented; browser/device acceptance pending
+
+- Added impostor sabotage chart (B), nearby repair (R), shared fault/destination/countdown strip and private repair dialogs. Lights dims crew vision to 25% until five shared switches match; Reactor needs two players holding both panels for 3 continuous seconds; O₂ needs private five-digit codes at Scrubber and Cryo; Comms hides task tracking until a 5-second hold finishes.
+- Added authoritative strict actor/round/fault/token/range/line-of-sight validation, 30-second system and 15-second independent door cooldowns, 10-second room seals with occupied-threshold rejection, shared dynamic collision/occlusion and heartbeat-based hold interruption. Sessions freeze movement and exclude task/kill/vent actions; reset/death/disconnect/expiry clear them.
+- Reactor/O₂ fail at 45 seconds, broadcast roles only after the ended patch, and allow host reset. Emergency calls reject during either crisis; meetings/reporting and remaining win/end/ghost work remain #16–#18.
+- Verification passed under Node 22: all 69 tests, lint, typecheck and production build, including a new four-client sabotage round and the existing five-client regression. One Impeccable detector pass found no issues; independent source review prompted separated phone-size sabotage buttons. Browser inventory is empty; rendered, touch, keyboard/focus and target-device acceptance remain pending. The two existing upstream Zod/Rollup annotation warnings remain; the map bundle also crossed Vite's 500kB advisory (511kB raw / 156kB gzip), for the later performance pass. See `docs/design/sabotage.md`.
+
+## 2026-09-06 — Reports and emergency meetings
+
+### #16 — Implemented; browser/device acceptance pending
+
+- Added F/touch Report within 100px of a visible body and C/touch Emergency within 80px of Commons. Server validates current round, phase, life, connection, vent/session state, line of sight, emergency allowance and 15-second cooldown. Reactor/O₂ blocks emergencies; reports can interrupt a crisis only before its deadline.
+- Meeting entry atomically clears bodies/faults/doors, cancels procedures, clears vents and movement queues, teleports all players to Commons without reviving the dead, and broadcasts only after the state patch. Public caller name/colour snapshot survives departure; no roles or assignments are exposed.
+- Added native meeting intro with original engineer portrait, caller colour/number, report location, state-driven reopening, Back/Escape and host reset with migration support. #16 stops at entry; chat/voting/ejection and return to play remain #17. `MeetingSystem.beginPlaying` supplies the post-meeting emergency cooldown hook for that step.
+- Verification passed under Node 22: all 74 tests, lint, typecheck and production build, including a four-client real-kill report and next-round emergency integration. Impeccable detector returned no findings; independent review prompted change-only emergency live-region updates. Browser inventory is empty; rendered portrait, mobile/touch/focus and lifecycle acceptance remain pending. Existing upstream Zod/Rollup and map chunk-size advisories remain (518kB raw / 157kB gzip). See `docs/design/meetings.md`.
+
+## 2026-09-06 — Discussion, voting and ejection
+
+### #17 — Implemented; browser/device acceptance pending
+
+- Added timed discussion/voting, living meeting chat (200 characters, basic profanity mask, one message/sec, latest 100 retained), roster/dead crosses/voted badges, selection plus confirmation, and Skip. Chat and ballots validate actor/phase/deadline/round/meeting; ballot targets remain server-private until tally.
+- Tally handles all-voted/deadline, ties, skips, missing ballots and departures. Anonymous results omit voter identities; confirmation-disabled results omit role. Sanitized public result persists only during ejection for reopening. Ejected players die without a body; no general win evaluation until #18.
+- Added original engineer/starfield result sequence, numbered non-anonymous vote stamps, reduced-motion fallback and automatic Commons respawn/play resumption after six seconds. Kill/emergency/system cooldowns reset; chat/ballots clear. Host reset and migration still work.
+- Verification passed under Node 22: all 80 tests, typecheck, lint and production build. Six real clients completed tied anonymous and successful visible ejection votes; existing four/five-client regressions remain intact. Impeccable detector returned no findings; independent review prompted once-only accessible announcements for delayed result reveals. Browser inventory is empty; rendered/mobile/focus/animation acceptance remains pending. Existing upstream Zod/Rollup and chunk-size advisories remain (map bundle 526kB raw / 160kB gzip). See `docs/design/meetings.md`.
+
+## 2026-09-06 — Remaining milestones, procedural run
+
+### #18 — Implemented; final UI acceptance pending
+
+- Added authoritative task, elimination, parity, reactor and oxygen wins. Ejection wins finish after the six-second result sequence; tasks and kills evaluate immediately. Public final result reveals teams only after play ends; personal Victory/Defeat, original winning engineer lineup and host Play again preserve room/settings.
+- Ghosts float through walls with unrestricted vision, remain invisible to living players, and complete assigned crew tasks. Dead-only chat uses private delivery, round validation, sanitization, throttling and bounded history. Living-only report/vote/kill/repair/sabotage guards remain enforced.
+- Checkpoint: Node 22 typecheck and all 81 tests passed, including a four-client integration covering all five win paths, role reveal timing, ghost-chat privacy and replay. Updated earlier tests for intentional ghost/task and terminal ejection behavior. Visual review and final full checks will run with the remaining UI milestones.
+- Next: #19 audio, then #20 polish, #21 mobile, #22 reconnection, #23 ops, #24 documented playtest readiness. Real human/tunnel/device acceptance must not be represented as automated completion.
+
+### #19–#21 — Implementation checkpoint; verification in progress
+
+- #19: original Web Audio oscillator ambience and event cues, gesture unlock, saved master/music/effects sliders (0 mutes), suspended background audio, visibility-scoped spatial footsteps and vents. No third-party audio assets. Playback/mixing on real hardware remains pending.
+- #20: visible-body kill shake/vignette, bounded task sparks, pulsing station emissives, meeting entrance, star parallax, room-code entrance and loading tips. Existing additive glow supplies inexpensive emissive bloom; no new full-screen GPU filter. Reduced-motion alternatives retained. Screenshots and target-device FPS acceptance remain pending.
+- #21: touch-only 64px action grid, dismissible portrait prompt, scoped gesture/overscroll prevention, small-dialog adjustments and optional screen wake lock. Existing joystick has an 8px dead zone and 40px ramp to full speed. Physical Safari/Android and 360px rendered minigame acceptance remain pending.
+- Continuing to #22 reconnection and lobby AFK handling; final review follows the complete implementation pass.
+
+### #22 — Implemented and integration-tested
+
+- Colyseus 30-second reconnect retains identity, position, role/tasks; interrupted tasks/repairs/vents cancel. Private resynchronization works in active phases. URL-fragment token rotates on reconnect and is removed on leave/failure; invite links exclude it. Connected host migration, visible reconnect badges/status and 3-minute lobby-only inactivity removal added. Meeting grace waits for recovery or deadline; expired voters count as Skip.
+- Real-client tests passed for recovery and original secrets/position, mid-game host migration, lobby AFK vs in-game retention, and actual 30-second expiry. Full browser refresh and phone network-switch acceptance remain pending.
+
+### #23 — Implemented; hosting acceptance pending
+
+- Added opt-in `/admin` Basic Auth, room/phase/count/uptime table, confirmed CSRF-protected room close, no-cache/security headers; Caddy route and Compose configuration included. Admin disabled without password. Added pino stdout logging and single-process `MAX_ROOMS` default 20, friendly capacity message, test-only placeholder endpoint and explicit quick-tunnel helper.
+- README now covers current controls, ghosts/wins, sound/touch, reconnect token privacy, dashboard, limits, updates and throwaway hosting. Admin authentication, disabled mode, confirmation/CSRF rejection, room close, cap and recovery passed integration tests. Second-machine/public hosting and rendered admin acceptance pending; no public tunnel or deployment performed.
+
+### #24 — Prepared; human acceptance NOT complete
+
+- Added `KNOWN_ISSUES.md` and `docs/playtest.md` with two-game evidence sheet, timing/desync/device/FPS checks and follow-up procedure. No humans, physical phones or public tunnel were available; no results or balance changes invented. Defaults preserved pending evidence. No external issues/PR/commit/push created.
+- Final verification: all **88 tests** passed (11 shared, 45 server, 32 client), plus lint, typecheck and production build under Node 22. Added explicit wall-free ghost movement and meeting/result reconnect-knowledge regressions. The Impeccable source review prompted fixes to desktop action nesting, touch cooldown visibility and in-map reconnect notices; separate admin source review found no material issues. Browser inventory remains empty.
+- Local smoke check: client `http://localhost:5173` returned 200; server `/health` returned `{ok:true,rooms:0}`. Compose configuration validates with a dummy token, but real `TUNNEL_TOKEN` is unset and the Docker daemon is not running. No containers/tunnel were started. Production map chunk is 540.69kB raw / 163.77kB gzip; existing upstream Zod/Rollup and >500kB advisories remain. Visibility CPU test p95 was 0.180ms, excluding GPU/rendering; no device FPS claim.
+
+## Current handoff
+
+1. Local implementation and automated verification for #18–#23 are finished. #24's two real 6+ player games remain the main external gate; visual/device/hosting acceptance remains as explicitly recorded above.
+2. Execute `docs/playtest.md`, including 360px task UI, Safari/Android, audio, ghost/result focus, refreshed-tab reconnect, public hosting and measured performance; record results here.
+3. See `KNOWN_ISSUES.md` for the precise acceptance gaps. Historical sections below are previous handoff context, not current implementation status.
+
+## Earlier handoff — after #17 (superseded by the procedural run above)
+
+1. Next implementation is #18: general win evaluation, per-player Victory/Defeat screen, play again and ghosts. #18–#24 remain unimplemented. Timed sabotage defeat exists; hook other wins into kill, task completion, ejection and departures without leaking roles early. MeetingFlow already resets kill/emergency/system cooldowns on play resumption.
+2. Complete #7/#8 browser acceptance: two players walking/sliding at 100ms RTT; desktop/portrait/landscape controls and character readability; Back/Escape/reopen, phase pause, disconnect, animations and reduced motion. Use `?view=characters` to rehearse clips. Continue using `/impeccable` for every screen.
+3. All eight task types dispatch through `minigames/factory.ts`; shared `taskStation` follows long-task chains. Verify #9–#12 reveal, focus, HUD, minigames, cancel/reopen, freeze/resume and reset in desktop/mobile browsers.
 4. #2 Docker/tunnel/mobile-data acceptance, #4 physical two-device lobby acceptance, and #6 target-device FPS checks remain pending.
-5. Run `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` after changes. Use Node 22 (`.nvmrc`); the machine defaults to Node 26.
+5. Run `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` after changes. Use Node 22 (`.nvmrc`); this Windows session used `fnm exec --using 22 cmd /c pnpm <command>` (its ambient Node was 24).
 
 `plan.md` remains the original specification. Update this file as each issue is implemented; distinguish code completion from external acceptance checks.

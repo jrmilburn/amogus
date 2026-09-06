@@ -26,7 +26,7 @@
             Explore The Hollow
           </button>
           <p class="build-note">
-            Lobby build — movement and gameplay are coming next.
+            Assemble your crew, discover your role, and explore the station.
           </p>
         </div>
         <form id="entry-form" class="entry-form">
@@ -79,7 +79,7 @@
           </div>
           <div class="room-actions">
             <button class="secondary" type="button" data-open-map>
-              Explore map
+              Walk around
             </button>
             <button id="copy-link" type="button">Copy invite link</button
             ><button id="leave" class="secondary" type="button">
@@ -92,13 +92,12 @@
           ><input id="invite-link" readonly />
         </div>
         <div id="starting" class="starting" hidden>
-          <h3>Crew assembled.</h3>
-          <p>
-            This room has started. The playable game loop arrives in a later
-            build.
+          <h3 id="round-title">Revealing roles</h3>
+          <p id="round-help">
+            Enter the station to see your private assignment.
           </p>
           <button id="cancel-start" type="button" class="secondary">
-            Return to lobby
+            Return everyone to lobby
           </button>
           <p id="wait-host" class="hint" hidden>
             Waiting for the host to return to the lobby.

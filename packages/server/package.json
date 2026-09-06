@@ -11,10 +11,11 @@
     "test": "tsx --test test/*.test.ts"
   },
   "dependencies": {
-    "@mutiny/shared": "workspace:*",
     "@colyseus/core": "~0.17.0",
     "@colyseus/ws-transport": "~0.17.0",
-    "express": "^5.1.0"
+    "@mutiny/shared": "workspace:*",
+    "express": "^5.1.0",
+    "pino": "9"
   },
   "devDependencies": {
     "@colyseus/sdk": "~0.17.0",

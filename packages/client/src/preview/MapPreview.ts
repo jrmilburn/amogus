@@ -3,10 +3,36 @@ import { MapDefSchema } from '@mutiny/shared/maps';
 import { loadStationAssets } from '../renderer/assets';
 import { Renderer } from '../renderer/Renderer';
 import { letterbox } from '../renderer/Camera';
+import { Walkaround, type WalkRoom } from '../movement/Walkaround';
+import { loadCharacterAssets } from '../characters/assets';
+import {
+  CHARACTER_ANIMATIONS,
+  type CharacterAnimation,
+} from '../characters/animations';
+import { CharacterRehearsal } from '../characters/CharacterRehearsal';
+import { RoundInfo } from '../round/RoundInfo';
+import { RoundOverlay } from '../round/RoundOverlay';
+import { TaskController } from '../tasks/TaskController';
+import { ImpostorController } from '../round/ImpostorController';
+import { Minimap } from './Minimap';
+import { SabotageController } from '../sabotage/SabotageController';
+import { MeetingController } from '../meetings/MeetingController';
 import './preview.css';
+import { Afterlife } from '../round/Afterlife';
+import { GameAudio } from '../audio/GameAudio';
+import { GamePolish } from './GamePolish';
+import { MobileUX } from './MobileUX';
+import '../audio/audio.css';
 
-export async function openMapPreview(trigger?: HTMLButtonElement) {
+export async function openMapPreview(
+  trigger?: HTMLButtonElement,
+  room?: WalkRoom,
+  knowledge = new RoundInfo(),
+) {
   const map = MapDefSchema.parse(mapData);
+  const rehearsing =
+    !room &&
+    new URL(window.location.href).searchParams.get('view') === 'characters';
   const dialog = document.createElement('dialog');
   dialog.className = 'map-preview';
   dialog.setAttribute('aria-label', 'Explore The Hollow');
@@ -20,22 +46,113 @@ export async function openMapPreview(trigger?: HTMLButtonElement) {
     select.append(option);
   }
   select.value = 'commons';
+  if (rehearsing) {
+    dialog.setAttribute('aria-label', 'Engineer character rehearsal');
+    dialog.querySelector('h2')!.textContent = 'Meet the engineers';
+    dialog.querySelector('.map-room-field label')!.textContent = 'Animation';
+    dialog.querySelector('.map-instructions strong')!.textContent =
+      'Character rehearsal';
+    dialog.querySelector('.map-instructions p')!.textContent =
+      'Twelve colours. Drag or use arrows to inspect.';
+    dialog.querySelector('.map-home')!.textContent = 'Replay animation';
+    const labels = {
+      idle: 'Idle',
+      walk: 'Walk',
+      ventEnter: 'Enter vent',
+      ventExit: 'Exit vent',
+      killed: 'Defeat',
+      ghost: 'Ghost',
+      body: 'Body',
+    };
+    select.replaceChildren(
+      ...(Object.keys(CHARACTER_ANIMATIONS) as CharacterAnimation[]).map(
+        (key) => {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = labels[key];
+          return option;
+        },
+      ),
+    );
+  }
   const host = dialog.querySelector<HTMLElement>('.map-canvas')!;
   const loading = dialog.querySelector<HTMLElement>('.map-loading')!;
   const retry = dialog.querySelector<HTMLButtonElement>('.map-retry')!;
   const progress = dialog.querySelector<HTMLProgressElement>('progress')!;
   const location = dialog.querySelector<HTMLElement>('.map-location')!;
   const events = new AbortController();
+  const connectionStatus = document.createElement('p');
+  connectionStatus.className = 'map-connection-status';
+  connectionStatus.setAttribute('role', 'status');
+  connectionStatus.hidden = true;
+  dialog.append(connectionStatus);
+  const dropped = () => {
+    connectionStatus.hidden = false;
+    connectionStatus.textContent =
+      'Connection interrupted. Reconnecting for up to 30 seconds…';
+  };
+  const reconnected = () => {
+    connectionStatus.hidden = false;
+    connectionStatus.textContent = 'Reconnected to your crew.';
+  };
+  room?.onDrop(dropped);
+  room?.onReconnect(reconnected);
   const keys = new Set<string>();
   let renderer: Renderer | undefined;
   let closed = false;
   let starting = false;
   const target = { ...map.emergencyButton };
+  let walk: Walkaround | undefined;
+  let tasks: TaskController | undefined;
+  let actions: ImpostorController | undefined;
+  let sabotage: SabotageController | undefined;
+  let meetings: MeetingController | undefined;
+  let afterlife: Afterlife | undefined;
+  let gameAudio: GameAudio | undefined;
+  let polish: GamePolish | undefined;
+  let mobile: MobileUX | undefined;
+  let rehearsal: CharacterRehearsal | undefined;
+  const minimap = rehearsing ? undefined : new Minimap(dialog, map);
+  const roundOverlay = room
+    ? new RoundOverlay(dialog, room, knowledge, map)
+    : undefined;
+  const zone = document.createElement('div');
+  if (room) {
+    dialog.classList.add('is-walkaround');
+    dialog.setAttribute('aria-label', 'Walk around The Hollow');
+    dialog.querySelector<HTMLElement>('.map-room-field')!.hidden = true;
+    dialog.querySelector<HTMLElement>('.map-home')!.hidden = true;
+    dialog.querySelector('.map-instructions strong')!.textContent =
+      'Walk with your crew';
+    dialog.querySelector('.map-instructions p')!.textContent =
+      'WASD or arrow keys to move. Back returns to the lobby.';
+    dialog.querySelector('.portrait-hint')!.textContent =
+      'Drag the left side to walk. Turn your phone for a wider view.';
+    zone.className = 'walk-touch-zone';
+    zone.setAttribute('aria-label', 'Drag to walk');
+    zone.hidden = true;
+    dialog.append(zone);
+    room.onLeave(close);
+  }
   let dragging: { id: number; x: number; y: number } | undefined;
   function close() {
     if (closed) return;
     closed = true;
     events.abort();
+    room?.onDrop.remove(dropped);
+    room?.onReconnect.remove(reconnected);
+    mobile?.destroy();
+    afterlife?.destroy();
+    gameAudio?.destroy();
+    polish?.destroy();
+    actions?.destroy();
+    meetings?.destroy();
+    sabotage?.destroy();
+    minimap?.destroy();
+    tasks?.destroy();
+    walk?.destroy();
+    roundOverlay?.destroy();
+    room?.onLeave.remove(close);
     renderer?.destroy();
     dialog.close();
     dialog.remove();
@@ -63,18 +180,32 @@ export async function openMapPreview(trigger?: HTMLButtonElement) {
     renderer?.camera.follow(target, true);
     select.value = id;
   };
-  select.addEventListener('change', () => jump(select.value), {
-    signal: events.signal,
-  });
+  select.addEventListener(
+    'change',
+    () =>
+      rehearsing
+        ? rehearsal?.play(select.value as CharacterAnimation)
+        : jump(select.value),
+    {
+      signal: events.signal,
+    },
+  );
   dialog
     .querySelector('.map-home')!
-    .addEventListener('click', () => jump('commons'), {
-      signal: events.signal,
-    });
+    .addEventListener(
+      'click',
+      () =>
+        rehearsing
+          ? rehearsal?.play(select.value as CharacterAnimation)
+          : jump('commons'),
+      {
+        signal: events.signal,
+      },
+    );
   host.addEventListener(
     'pointerdown',
     (event) => {
-      if (!renderer || event.button !== 0) return;
+      if (room || !renderer || event.button !== 0) return;
       const box = letterbox({ width: innerWidth, height: innerHeight });
       if (
         event.clientX < box.x ||
@@ -127,6 +258,7 @@ export async function openMapPreview(trigger?: HTMLButtonElement) {
     'keydown',
     (event) => {
       if (
+        room ||
         event.target instanceof HTMLSelectElement ||
         !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)
       )
@@ -162,19 +294,86 @@ export async function openMapPreview(trigger?: HTMLButtonElement) {
     progress.value = 0;
     loading.hidden = false;
     loading.querySelector('h3')!.textContent = 'Opening the station';
-    loading.querySelector('p')!.textContent =
-      'Preparing the map and its fixtures…';
+    loading.querySelector('p')!.textContent = room
+      ? [
+          'Ghosts can still finish crew tasks.',
+          'Report a body before starting another task.',
+          'Two engineers must hold the reactor panels together.',
+          'Check the minimap to find your next room.',
+        ][Math.floor(Math.random() * 4)]!
+      : 'Preparing the map and its fixtures…';
     try {
-      const assets = await loadStationAssets((value) => {
-        progress.value = value;
-      });
+      const amounts = [0, room || rehearsing ? 0 : 1];
+      const track = (index: number) => (value: number) => {
+        amounts[index] = value;
+        progress.value = (amounts[0]! + amounts[1]!) / 2;
+      };
+      const [assets, characters] = await Promise.all([
+        loadStationAssets(track(0)),
+        room || rehearsing
+          ? loadCharacterAssets(track(1))
+          : Promise.resolve(undefined),
+      ]);
       if (closed) return;
       const next = new Renderer(map, assets);
       renderer = next;
       await next.init(host);
       if (closed) return;
+      if (room) {
+        walk = new Walkaround(room, next, dialog, zone, characters!, knowledge);
+        tasks = new TaskController(dialog, room, knowledge, next, walk);
+        actions = new ImpostorController(
+          dialog,
+          room,
+          knowledge,
+          next,
+          walk,
+          tasks,
+        );
+        zone.hidden = false;
+        sabotage = new SabotageController(
+          dialog,
+          room,
+          knowledge,
+          next,
+          walk,
+          tasks,
+        );
+        meetings = new MeetingController(
+          dialog,
+          room,
+          next,
+          tasks,
+          characters!,
+        );
+        afterlife = new Afterlife(dialog, room, knowledge, next, characters!);
+        gameAudio = new GameAudio(dialog, room, next);
+        polish = new GamePolish(dialog, room, next);
+        mobile = new MobileUX(dialog);
+      }
       next.camera.follow(target, true);
+      if (rehearsing) {
+        rehearsal = new CharacterRehearsal(next, characters!);
+        rehearsal.play(select.value as CharacterAnimation);
+      }
+      if (walk) next.camera.follow(walk.target, true);
       next.onFrame = (seconds) => {
+        rehearsal?.update();
+        if (walk) {
+          walk.frame(seconds, location);
+          minimap?.update(
+            walk.target,
+            room?.state.players.get(room.sessionId)?.inVent,
+          );
+          tasks?.frame();
+          actions?.frame();
+          sabotage?.frame();
+          meetings?.frame();
+          afterlife?.frame();
+          gameAudio?.frame();
+          polish?.frame();
+          return;
+        }
         const dx =
           Number(keys.has('ArrowRight')) - Number(keys.has('ArrowLeft'));
         const dy = Number(keys.has('ArrowDown')) - Number(keys.has('ArrowUp'));
@@ -183,8 +382,9 @@ export async function openMapPreview(trigger?: HTMLButtonElement) {
         target.x = Math.max(0, Math.min(map.size.width, target.x + dx * step));
         target.y = Math.max(0, Math.min(map.size.height, target.y + dy * step));
         Object.assign(target, next.camera.constrain(target));
-        const room = next.roomAt(next.camera);
-        const name = room?.name ?? 'Station passage';
+        const currentRoom = next.roomAt(next.camera);
+        minimap?.update(next.camera, false, true);
+        const name = currentRoom?.name ?? 'Station passage';
         if (location.textContent !== name) location.textContent = name;
       };
       // Metrics expose counts/timing for reproducible checks, not a promised device FPS.
@@ -200,6 +400,25 @@ export async function openMapPreview(trigger?: HTMLButtonElement) {
       loading.hidden = true;
       host.dataset.ready = 'true';
     } catch (error) {
+      mobile?.destroy();
+      mobile = undefined;
+      afterlife?.destroy();
+      afterlife = undefined;
+      gameAudio?.destroy();
+      gameAudio = undefined;
+      polish?.destroy();
+      polish = undefined;
+      actions?.destroy();
+      actions = undefined;
+      meetings?.destroy();
+      meetings = undefined;
+      sabotage?.destroy();
+      sabotage = undefined;
+      tasks?.destroy();
+      tasks = undefined;
+      walk?.destroy();
+      walk = undefined;
+      zone.hidden = true;
       renderer?.destroy();
       renderer = undefined;
       if (closed) return;

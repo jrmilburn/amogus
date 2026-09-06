@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
-import { DEFAULT_SETTINGS } from '../src/settings.js';
 import { MAP_IDS } from '../src/constants.js';
 import {
   MapDefSchema,
@@ -57,14 +56,16 @@ test('The Hollow validates, has reciprocal vents, contained tasks, and three com
   }
 });
 
-test('collision rectangles exactly match the floor plan and the outer circuit takes 4–5 minutes', () => {
+test('collision rectangles match the compact floor plan and its shorter circuit', () => {
   assert.deepEqual(
     map.walls,
     buildCollisionWalls(map),
     'Regenerate walls with pnpm map:walls after changing floors.',
   );
-  const seconds = routeLength(map.reviewCircuit) / DEFAULT_SETTINGS.playerSpeed;
-  assert.ok(seconds >= 240 && seconds <= 300, `Circuit takes ${seconds}s`);
+  // User-requested compact pass: 25% shorter than the original 40,800px circuit.
+  assert.equal(routeLength(map.reviewCircuit), 30600);
+  const seconds = routeLength(map.reviewCircuit) / 200;
+  assert.equal(seconds, 153);
   // Sample entire segments, not only their endpoints, with the planned 24px body radius.
   for (let i = 1; i < map.reviewCircuit.length; i++) {
     const a = map.reviewCircuit[i - 1]!,
@@ -83,7 +84,7 @@ test('collision rectangles exactly match the floor plan and the outer circuit ta
   }
   assert.equal(isWalkable(map, { x: 0, y: 0 }), false);
   assert.equal(
-    isWalkable(map, { x: 7200, y: 3900 }),
+    isWalkable(map, { x: 5400, y: 2925 }),
     false,
     'Central void is solid.',
   );

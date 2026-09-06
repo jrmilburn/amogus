@@ -24,6 +24,59 @@
 .map-canvas.dragging {
   cursor: grabbing;
 }
+.is-walkaround .map-canvas {
+  cursor: default;
+}
+.is-walkaround .map-controls {
+  left: auto;
+  max-width: 55%;
+  pointer-events: none;
+}
+.is-walkaround .map-instructions {
+  display: block;
+}
+.walk-touch-zone {
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 0;
+  width: 33.333%;
+  touch-action: none;
+  user-select: none;
+}
+.walk-stick {
+  position: absolute;
+  width: 112px;
+  height: 112px;
+  margin: -56px;
+  border: 2px solid #c6d1cd;
+  border-radius: 50%;
+  background: #102029;
+  pointer-events: none;
+}
+.walk-knob {
+  position: absolute;
+  inset: 32px;
+  background: #e6a65a;
+  border-radius: 50%;
+}
+.walk-touch-hint {
+  display: none;
+  position: absolute;
+  bottom: max(28px, env(safe-area-inset-bottom));
+  left: max(16px, env(safe-area-inset-left));
+  padding: 10px;
+  color: #dde6e4;
+  background: #102029;
+  border: 1px solid #3f535d;
+  border-radius: 8px;
+  pointer-events: none;
+}
+@media (any-pointer: coarse) {
+  .walk-touch-hint {
+    display: block;
+  }
+}
 .map-canvas canvas {
   display: block;
   width: 100%;

@@ -1,0 +1,122 @@
+.round-announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.round-reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  padding: max(24px, env(safe-area-inset-top)) 24px;
+  overflow: auto;
+  color: #dde6e4;
+  background: #102029;
+}
+.role-card {
+  width: min(100%, 600px);
+  padding-block: 24px;
+  animation: role-arrive 300ms ease-out;
+}
+.role-kicker {
+  margin: 0 0 8px;
+  color: #a6b6b7;
+}
+.role-card h2 {
+  margin: 0 0 20px;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  color: #99ddcc;
+  line-height: 1.05;
+}
+.is-impostor .role-card h2 {
+  color: #ff8f99;
+}
+.role-purpose {
+  margin: 0 0 12px;
+  font-size: 1.125rem;
+}
+.role-team {
+  margin: 0;
+  color: #c6d1cd;
+}
+.role-countdown {
+  margin: 28px 0 0;
+  border-top: 1px solid #425358;
+  padding-top: 20px;
+  color: #e6a65a;
+}
+.round-assignment {
+  position: absolute;
+  z-index: 2;
+  top: max(108px, calc(env(safe-area-inset-top) + 88px));
+  left: max(24px, env(safe-area-inset-left));
+  width: min(320px, calc(100% - 48px));
+  max-height: calc(100dvh - 230px);
+  overflow-y: auto;
+  border: 1px solid #425358;
+  border-radius: 8px;
+  background: #102029;
+  padding: 12px 16px;
+  color: #dde6e4;
+}
+.round-assignment summary {
+  min-height: 24px;
+  cursor: pointer;
+  color: #99ddcc;
+}
+.is-impostor .round-assignment summary {
+  color: #ff8f99;
+}
+.round-assignment p {
+  font-size: 0.875rem;
+  margin: 12px 0;
+}
+.round-assignment ul {
+  padding-left: 20px;
+  margin: 12px 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.round-assignment li + li {
+  margin-top: 8px;
+}
+.round-assignment summary:focus-visible {
+  outline: 2px solid #e6a65a;
+  outline-offset: 4px;
+}
+@keyframes role-arrive {
+  from {
+    opacity: 0.65;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-height: 500px) {
+  .role-card {
+    padding-block: 0;
+  }
+  .role-card h2 {
+    font-size: 2.75rem;
+    margin-bottom: 12px;
+  }
+  .role-countdown {
+    margin-top: 16px;
+    padding-top: 12px;
+  }
+  .round-assignment {
+    top: 80px;
+    max-height: calc(100dvh - 164px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .role-card {
+    animation: none;
+  }
+}

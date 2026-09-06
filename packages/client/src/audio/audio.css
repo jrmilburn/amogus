@@ -1,0 +1,43 @@
+.audio-settings {
+  position: absolute;
+  top: 100px;
+  right: 24px;
+  z-index: 7;
+  background: #102029;
+  border: 1px solid #71888e;
+  padding: 8px 12px;
+  max-width: 260px;
+}
+.audio-settings summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.audio-settings label {
+  display: grid;
+  grid-template-columns: 1fr 48px;
+  gap: 8px;
+  margin-top: 12px;
+}
+.audio-settings input {
+  grid-column: 1;
+  min-width: 0;
+  width: 100%;
+  min-height: 32px;
+}
+.audio-settings output {
+  grid-column: 2;
+  align-self: center;
+  font-variant-numeric: tabular-nums;
+}
+.audio-settings p {
+  font-size: 0.875rem;
+  max-width: 25ch;
+}
+@media (max-width: 600px) {
+  .audio-settings {
+    right: 12px;
+    top: 84px;
+  }
+}

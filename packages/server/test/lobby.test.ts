@@ -45,6 +45,8 @@ test(
       async function remember(room: ClientRoom) {
         room.reconnection.enabled = false;
         clients.push(room);
+        room.onMessage(SERVER_MESSAGES.roleReveal, () => {});
+        room.onMessage(SERVER_MESSAGES.taskList, () => {});
         const queue: ServerMessages['error'][] = [];
         errors.set(room, queue);
         room.onMessage<ServerMessages['error']>(
@@ -145,7 +147,7 @@ test(
         'invalidPayload',
       );
       assert.equal(host.state.settings.killCooldown, 30);
-      assert.equal(host.state.settings.playerSpeed, 160);
+      assert.equal(host.state.settings.playerSpeed, 200);
       peer.send(CLIENT_MESSAGES.updateProfile, {
         name: '  Jo<>  ',
         color: 'cyan',

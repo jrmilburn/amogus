@@ -11,7 +11,9 @@ import {
 import { createGameServer } from '../src/app.js';
 
 test('health counts rooms and two clients share a live placeholder room', async () => {
-  const { gameServer, httpServer } = createGameServer();
+  const { gameServer, httpServer } = createGameServer({
+    includePlaceholder: true,
+  });
   try {
     await gameServer.listen(0, '127.0.0.1');
     const port = (httpServer.address() as AddressInfo).port;

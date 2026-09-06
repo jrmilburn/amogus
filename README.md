@@ -1,6 +1,6 @@
 # Mutiny
 
-An original browser social deduction game for 4–10 players. Built with an authoritative Colyseus server and a PixiJS v8 client. The current build supports private lobbies: create/join by code, invite links, live names/colours/readiness, host settings, and host transfer. An explorable PixiJS map preview is also available; gameplay is not implemented yet. See [plan.md](plan.md) for the roadmap and [completed.md](completed.md) for progress and resume notes.
+An original browser social deduction game for 4–10 players. Built with an authoritative Colyseus server and a PixiJS v8 client. The current build supports private lobbies: create/join by code, invite links, live names/colours/readiness, host settings, and host transfer. Lobby members can walk around The Hollow together with desktop or touch controls. Roles, tasks, and game rounds are not implemented yet. See [plan.md](plan.md) for the roadmap and [completed.md](completed.md) for progress and resume notes.
 
 ## Develop
 
@@ -55,13 +55,41 @@ Architecture references: [Colyseus WebSocket transport](https://docs.colyseus.io
 
 - Pick a name (2–12 characters) and one of twelve named/numbered colours. A colour taken while joining is automatically reassigned; taken colours cannot be selected in the lobby.
 - The host edits all twelve settings. Changes reset readiness. Readiness is advisory; Start requires four players (seven with two impostors).
-- Start currently enters a locked `starting` phase and displays an explicit gameplay-under-construction notice. The host can return everyone to the lobby. Roles, tasks, movement and game rounds arrive in later plan issues.
-- Leaving or losing the host connection transfers control to the earliest remaining player. Refresh currently joins as a new player; recovery of the original session is planned in #22.
+- Start with at least four players (seven for two impostors): everyone receives a private role and task assignment, sees a three-second reveal, then enters the station. Movement defaults to 200px/s. The host can use Back and **Return everyone to lobby** to reset. Dead crew float through walls, finish tasks and use private Ghost chat; living players cannot see them.
+- Crew: follow the top-left task list to a station. Within 80px, an amber outline and **Use** button become available. Press **E** or tap **Use** and follow the task instructions. Esc/× cancels without closing the map; long tasks retain earlier stages. Finished tasks receive a tick and the green crew bar updates for everyone.
+- Impostor: **Q / Kill** targets nearby crew within 60px after the cooldown (30s by default, including round start). A kill leaves a body and resets the cooldown. **V / Vent** enters a vent within 80px; choose an arrow-labelled destination, then **V / Exit** to emerge. Fake stations open with **E / Use**, but never advance crew progress. Fellow impostor names are red only in impostor views. See [action controls and acceptance notes](docs/design/impostor-actions.md).
+- All eight minigames are available: **reroute power**, **calibrate gyro**, **data transfer**, **sort samples**, **fuel engines**, **clear vents**, **enter access code**, and **scan ID**. Instruments explain their controls; mouse/touch and keyboard alternatives are supported. Fuel takes a five-second hold at each of two stations; data takes eight seconds at each stage. The memory code appears for two seconds; the ID swipe must take 0.8–1.6 seconds. Games pause when hidden/unfocused. Sound hooks exist; audio arrives in #19.
+- During a round, sight is limited by walls and the host's crew/impostor vision settings. Nearby floor lamps remain visible inside your field of view; players around corners disappear, including their name tags. The lobby and standalone previews remain fully lit. Lights sabotage reduces crew vision to 25%; impostor vision is unchanged.
+- Impostors press **B / Sabotage** for system and room-door controls. All living players can press **R / Repair** at a highlighted panel. Lights: match five switches in Switchyard. Reactor: two players hold its two panels together for three seconds. O₂: enter the code at both Scrubber and Cryo panels. Comms: hold the Relay panel for five seconds to restore task tracking. Reactor/O₂ fail after 45 seconds. System cooldown is 30 seconds after repair; doors seal for 10 seconds with a separate 15-second cooldown. See [sabotage controls and acceptance notes](docs/design/sabotage.md).
+- The station is now 25% smaller in each dimension: about 2m33s around the outer loop at default speed. Rooms have task-aligned equipment, including Archive files, frozen engineers, propulsion machinery and spare suits. **Station map** in the top-left toggles a minimap showing only your position; it starts collapsed on smaller screens. See the [room artwork contact sheet](docs/maps/room-theme-review.png) (atlas/placement review, not a gameplay screenshot).
+- Leaving or losing the host connection transfers control to the earliest connected player. Refresh within 30 seconds restores the same player, role, tasks and position. The URL fragment contains a private reconnect token: use **Copy invite link**, not the address bar, to invite friends. Intentional Leave clears it. Players idle in the lobby for three minutes are removed; active rounds have no AFK kick.
 - Shared schema, message contracts, privacy decisions and colour accessibility: [PROTOCOL.md](packages/shared/PROTOCOL.md). Every screen UI, including basic screens, uses the `/impeccable` design workflow.
+
+## Reports and emergency meetings (#16–#17)
+
+Press **F / Report** within 100px of a visible body, or **C / Emergency** at the Commons button. Emergency calls use the host's per-player allowance and a 15-second cooldown; reactor/O₂ crises block emergency calls, but bodies can still be reported before the failure deadline. Meetings clear bodies and sabotages, close procedures, and bring everyone back to Commons with movement paused. The intro shows the caller and report location.
+
+Discuss using meeting chat (living players only, 200 characters), then select a player or **Skip** and **confirm** your vote. Votes lock once submitted. Ties/skip-majorities eject nobody; missing ballots count as Skip. Anonymous voting hides voter identities, and role confirmation follows the host setting. After the six-second result sequence, play resumes with reset cooldowns or shows the winning team. See [meeting controls and verification](docs/design/meetings.md).
+
+## End of round, sound and phones
+
+Crew win by finishing all crew tasks (including ghosts) or eliminating every impostor. Impostors win at living-player parity or an expired reactor/O₂ crisis. The final screen shows your Victory/Defeat, why the round ended, the winning lineup and all roles. **Play again** returns everyone to the same lobby and settings.
+
+Open **Sound** in the station for Master, Station ambience and Effects sliders; Master 0 mutes. These settings use localStorage, unlike roles and reconnect tokens. Audio is original synthesized sound and unlocks on a keypress/tap. Hidden tabs suspend audio. On phones, landscape is recommended, controls use a 64px action cluster, and screen wake lock is attempted where the browser permits it. Browser/device acceptance is tracked separately in [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+
+## Host dashboard and limits
+
+Set `ADMIN_PASSWORD` to a strong password and restart; `/admin` then uses Basic Auth with username `admin`. Blank means disabled (404). Only use it over public HTTPS or localhost: HTTP Basic Auth does not encrypt credentials. Native development: open `http://localhost:2567/admin`; hosted: `https://your-host/admin`. It lists codes, player counts, phase and uptime, never private roles/tasks. Closing a room requires a confirmation checkbox and protected form submission; everyone disconnects and the round cannot be recovered.
+
+`MAX_ROOMS` defaults to 20 (integer 1–1000). At capacity, creation returns a friendly server-full message; existing rooms can still accept players. This is a single-process in-memory limit, not a distributed deployment scheme. Native PowerShell: `$env:MAX_ROOMS='20'`; set `ADMIN_PASSWORD` in your local environment without committing it. Compose reads both from `.env`. Structured JSON logs go to stdout: `docker compose logs --tail=100 server`. Game logs omit chat, passwords, reconnect tokens and private assignments.
+
+For a throwaway URL, install cloudflared, build the client, and start only the local services: `pnpm install --frozen-lockfile`, `pnpm --filter @mutiny/client... build`, then `TUNNEL_TOKEN=unused docker compose up -d --build server caddy` (Bash/WSL). Run `sh scripts/tunnel-quick.sh` in a separate terminal. It explicitly exposes local Caddy publicly; share the printed HTTPS URL. Stop that terminal to end the tunnel. The script respects exported `HOST_PORT`; it does not read `.env`. No public tunnel is started automatically by development or tests.
+
+Update with `git pull --ff-only` then `./scripts/host.sh`, preserving uncommitted work first. Updates restart the in-memory server: finish active games before updating. If Git cannot fast-forward, resolve the branch divergence before rebuilding. A second-machine hosting walkthrough and two real 6+ player games remain required; see [playtest procedure](docs/playtest.md).
 
 ## Map data and collision preview
 
-The original **The Hollow** map is authored in `packages/shared/maps/the-hollow.json`. Its ten rooms form an outer loop with two central hubs and two dead ends. The measured outer circuit is 4m 15s at default walking speed; the PixiJS renderer is available as a preview, and player movement is the next milestone.
+The original **The Hollow** map is authored in `packages/shared/maps/the-hollow.json`. Its ten rooms form an outer loop with two central hubs and two dead ends. The compact outer circuit is 2m 33s at default walking speed; a movement test traverses it with the actual 24px collision radius.
 
 ```sh
 pnpm map:walls   # Regenerate collision after editing room/corridor footprints
@@ -72,6 +100,14 @@ pnpm map:render  # Validate and generate PNG + SVG review diagrams
 
 ## Explore the rendered station
 
-Run `pnpm dev` and choose **Explore The Hollow** on the landing screen or **Explore map** in a lobby. You can also open `http://localhost:5173/?view=map`. Select a room, drag the view (mouse or touch), or use arrow keys to pan. Back/Escape returns to the existing screen without leaving your multiplayer room. Portrait phones can use the preview; landscape gives the map more screen space.
+Run `pnpm dev`, create or join a lobby, and choose **Walk around**. Move with WASD or arrow keys; on touchscreens, drag in the left third of the screen to use the floating joystick. The camera follows your animated engineer, and other lobby members see your movement. Walls block movement and allow sliding. Back/Escape returns to the lobby without disconnecting. Losing focus or hiding the tab releases input. Landscape gives phones a wider view. Names and colour numbers identify each player.
 
-The client builds its original texture atlas automatically during `dev` and `build`. To rebuild it alone: `pnpm --filter @mutiny/client assets`. See [renderer design and API notes](docs/design/renderer.md) for layers, camera scale, culling, assets, and the #7 integration point. Performance on physical target devices is still to be measured.
+For a free camera tour without joining a room, choose **Explore The Hollow** on the landing screen or open `http://localhost:5173/?view=map`. Select a room, drag the view, or use arrow keys to pan.
+
+To check multiplayer movement, open two browsers, join the same room code, and choose **Walk around** in both. Check movement and wall sliding in both directions, then return to the lobby and reopen. The automated suite covers reconciliation with a simulated 100ms round trip; visual smoothness under browser network throttling and physical touch-device acceptance still need manual verification.
+
+The client builds its station and character atlases automatically during `dev`, `build`, and client tests. To rebuild them alone: `pnpm --filter @mutiny/client assets`. See [renderer design and API notes](docs/design/renderer.md) for layers, camera scale, culling, and assets. Performance on physical target devices is still to be measured.
+
+## Character rehearsal
+
+Open `http://localhost:5173/?view=characters` to inspect all twelve engineers on the map and preview idle, walk, vent entry/exit, defeat, ghost, and body art. Use the animation selector and **Replay animation**. [Character implementation notes](docs/design/characters.md), [colour lineup](docs/art/engineer-lineup.png), and [animation contact sheet](docs/art/engineer-animations.png).

@@ -15,6 +15,7 @@ import {
   type ColorId,
 } from '@mutiny/shared';
 import { colorPicker, element, settingsControls } from './lobby/controls';
+import { RoundInfo } from './round/RoundInfo';
 import './style.css';
 
 type LobbyRoom = Room<unknown, GameState>;
@@ -36,6 +37,8 @@ let selectedColor: ColorId = 'coral';
 let busy = false;
 let inviteCode: string | undefined;
 let lastRoster = '';
+let knowledge = new RoundInfo();
+let openedRound = 0;
 
 function announce(message: string, error = false) {
   status.textContent = message;
@@ -115,6 +118,8 @@ function setBusy(value: boolean) {
 }
 function joinError(error: unknown): string {
   const message = error instanceof Error ? error.message : '';
+  if (/server full/i.test(message))
+    return 'The station server is full. Try again after another room closes.';
   if (/locked|full|seat reservation/i.test(message))
     return 'This room is full or has already started. Ask the host to invite you next round.';
   if (/not found|invalid room|not defined/i.test(message))
@@ -132,17 +137,17 @@ entryForm.addEventListener('submit', (event) => {
     document.activeElement === codeInput;
   void enter(joining);
 });
-async function enter(joining: boolean) {
+async function enter(joining: boolean, reconnectToken?: string) {
   let name: string;
   try {
-    name = sanitizeName(entryName.value);
+    name = reconnectToken ? 'Reconnecting' : sanitizeName(entryName.value);
   } catch (error) {
     announce((error as Error).message, true);
     entryName.focus();
     return;
   }
   const code = inviteCode ?? codeInput.value.trim().toUpperCase();
-  if (joining && !validCode(code)) {
+  if (!reconnectToken && joining && !validCode(code)) {
     announce(
       'Enter a five-letter room code. Codes do not contain I or O.',
       true,
@@ -154,13 +159,132 @@ async function enter(joining: boolean) {
   announce('Connecting to your crew…');
   try {
     const options = { name, color: selectedColor };
-    const joined: LobbyRoom = joining
-      ? await client.joinById<GameState>(code, options, GameState)
-      : await client.create<GameState>(GAME_ROOM, options, GameState);
+    const joined: LobbyRoom = reconnectToken
+      ? await client.reconnect<GameState>(reconnectToken, GameState)
+      : joining
+        ? await client.joinById<GameState>(code, options, GameState)
+        : await client.create<GameState>(GAME_ROOM, options, GameState);
     room = joined;
+    knowledge = new RoundInfo();
+    openedRound = 0;
+    const joinedKnowledge = knowledge;
+    joined.onMessage<ServerMessages['roleReveal']>(
+      SERVER_MESSAGES.roleReveal,
+      (payload) => {
+        if (room === joined)
+          joinedKnowledge.reveal(
+            payload,
+            joined.state.phase,
+            joined.state.roundId,
+          );
+      },
+    );
+    joined.onMessage<ServerMessages['taskList']>(
+      SERVER_MESSAGES.taskList,
+      (payload) => {
+        if (room === joined)
+          joinedKnowledge.assign(
+            payload,
+            joined.state.phase,
+            joined.state.roundId,
+          );
+      },
+    );
+    joined.onMessage<ServerMessages['impostorStatus']>(
+      SERVER_MESSAGES.impostorStatus,
+      (payload) => {
+        if (room === joined)
+          joinedKnowledge.actionStatus(
+            payload,
+            joined.state.phase,
+            joined.state.roundId,
+          );
+      },
+    );
+    joined.onMessage<ServerMessages['killed']>(
+      SERVER_MESSAGES.killed,
+      (payload) => {
+        if (room === joined)
+          joinedKnowledge.killed(
+            payload,
+            joined.state.phase,
+            joined.state.roundId,
+          );
+      },
+    );
     // Refresh-to-reconnect arrives in #22; do not imply it already works.
-    joined.reconnection.enabled = false;
-    console.info('Connected to Mutiny. Session ID:', joined.sessionId);
+    joined.onMessage<ServerMessages['voteResult']>(
+      SERVER_MESSAGES.voteResult,
+      (payload) => {
+        if (
+          room !== joined ||
+          payload.roundId !== joined.state.roundId ||
+          payload.meetingId !== joined.state.meeting?.id
+        )
+          return;
+        announce(
+          payload.ejectedId
+            ? `${payload.ejectedName} was ejected.`
+            : 'No one was ejected.',
+        );
+        void showMap();
+      },
+    );
+    joined.onMessage<ServerMessages['meetingStart']>(
+      SERVER_MESSAGES.meetingStart,
+      (payload) => {
+        if (
+          room !== joined ||
+          payload.roundId !== joined.state.roundId ||
+          payload.meetingId !== joined.state.meeting?.id ||
+          !['meeting', 'voting'].includes(joined.state.phase)
+        )
+          return;
+        announce(
+          payload.reason === 'report'
+            ? 'Dead body reported. Everyone has returned to Commons.'
+            : 'Emergency meeting. Everyone has returned to Commons.',
+        );
+        void showMap();
+      },
+    );
+    joined.onMessage<ServerMessages['gameOver']>(
+      SERVER_MESSAGES.gameOver,
+      (payload) => {
+        if (room === joined && payload.roundId === joined.state.roundId) {
+          announce(
+            `${payload.winner === 'crew' ? 'Crew' : 'Impostors'} win. Open the station for the result and revealed teams.`,
+          );
+          void showMap();
+        }
+      },
+    );
+    joined.onMessage<ServerMessages['ghostHistory']>(
+      SERVER_MESSAGES.ghostHistory,
+      (payload) => {
+        if (
+          room === joined &&
+          payload.roundId === joined.state.roundId &&
+          !joined.state.players.get(joined.sessionId)?.alive
+        )
+          joinedKnowledge.ghostMessages = payload.messages;
+      },
+    );
+    joined.reconnection.enabled = true;
+    joined.onDrop(() =>
+      announce(
+        'Connection interrupted. Reconnecting for up to 30 seconds…',
+        true,
+      ),
+    );
+    joined.onReconnect(() => {
+      const url = new URL(location.href);
+      url.hash = new URLSearchParams({
+        reconnect: joined.reconnectionToken,
+      }).toString();
+      history.replaceState(null, '', url);
+      announce('Reconnected to your crew.');
+    });
     joined.onMessage<ServerMessages['error']>(
       SERVER_MESSAGES.error,
       (payload) => {
@@ -169,11 +293,27 @@ async function enter(joining: boolean) {
       },
     );
     joined.onStateChange(() => {
-      if (room === joined) render();
+      if (joined.state.phase === 'lobby') {
+        joinedKnowledge.clear();
+      }
+      if (room === joined) {
+        render();
+        if (
+          joined.state.phase !== 'lobby' &&
+          openedRound !== joined.state.roundId
+        ) {
+          openedRound = joined.state.roundId;
+          void showMap();
+        }
+      }
     });
     joined.onLeave(() => {
       if (room !== joined) return;
       room = undefined;
+      const url = new URL(location.href);
+      url.hash = '';
+      history.replaceState(null, '', url);
+      joinedKnowledge.clear();
       showLanding();
       showInvite(joined.roomId);
       announce(
@@ -189,6 +329,9 @@ async function enter(joining: boolean) {
     );
     const url = new URL(location.href);
     url.searchParams.set('code', joined.roomId);
+    url.hash = new URLSearchParams({
+      reconnect: joined.reconnectionToken,
+    }).toString();
     history.replaceState(null, '', url);
     element('#landing').hidden = true;
     element('#lobby').hidden = false;
@@ -198,7 +341,15 @@ async function enter(joining: boolean) {
     render();
     element('#copy-link').focus();
   } catch (error) {
-    announce(joinError(error), true);
+    if (reconnectToken) {
+      const url = new URL(location.href);
+      url.hash = '';
+      history.replaceState(null, '', url);
+      announce(
+        'The reconnect window expired or the room closed. Join again for the next round.',
+        true,
+      );
+    } else announce(joinError(error), true);
   } finally {
     setBusy(false);
   }
@@ -220,6 +371,7 @@ function render() {
       player.color,
       player.ready,
       player.isHost,
+      player.connected,
     ]),
   );
   if (roster !== lastRoster) {
@@ -227,6 +379,7 @@ function render() {
     list.replaceChildren(
       ...players.map((player) => {
         const row = document.createElement('li');
+        row.classList.toggle('is-disconnected', !player.connected);
         const color = COLORS.find((color) => color.id === player.color)!;
         const swatch = document.createElement('span');
         swatch.className = 'swatch';
@@ -245,7 +398,11 @@ function render() {
         identity.append(name, detail);
         const readiness = document.createElement('span');
         readiness.className = player.ready ? 'readiness is-ready' : 'readiness';
-        readiness.textContent = player.ready ? 'Ready' : 'Not ready';
+        readiness.textContent = !player.connected
+          ? 'Reconnecting'
+          : player.ready
+            ? 'Ready'
+            : 'Not ready';
         row.append(swatch, identity, readiness);
         return row;
       }),
@@ -286,6 +443,27 @@ function render() {
     : (requirement ??
       `${players.filter((p) => p.ready).length} of ${players.length} marked ready. ${own.isHost ? 'You can start when your crew is ready.' : 'The host will start the game.'}`);
   element('#starting').hidden = inLobby;
+  element('#round-title').textContent =
+    state.phase === 'ended'
+      ? state.winner === 'crew'
+        ? 'Crew win'
+        : 'Impostors win'
+      : ['meeting', 'voting', 'ejection'].includes(state.phase)
+        ? state.phase === 'ejection'
+          ? 'Vote result'
+          : 'Meeting in progress'
+        : state.phase === 'starting'
+          ? 'Revealing roles'
+          : 'Round in progress';
+  element('#round-help').textContent =
+    state.phase === 'ended'
+      ? 'Open the station for the result and revealed teams. The host can play again.'
+      : ['meeting', 'voting', 'ejection'].includes(state.phase)
+        ? 'Open the station to discuss, vote, or see the result. The round resumes automatically after the tally.'
+        : 'Enter the station to complete tasks, watch for impostors, and repair sabotaged systems.';
+  element<HTMLButtonElement>('#lobby [data-open-map]').textContent = inLobby
+    ? 'Walk around'
+    : 'Enter station';
   element('#cancel-start').hidden = !own.isHost;
   element('#wait-host').hidden = own.isHost;
 }
@@ -301,9 +479,11 @@ function showLanding() {
 element('#leave').addEventListener('click', () => {
   const previous = room;
   room = undefined;
+  knowledge.clear();
   void previous?.leave();
   const url = new URL(location.href);
   url.searchParams.delete('code');
+  url.hash = '';
   history.replaceState(null, '', url);
   showInvite();
   showLanding();
@@ -359,8 +539,11 @@ async function showMap(trigger?: HTMLButtonElement) {
   openingMap = true;
   if (trigger) trigger.disabled = true;
   try {
+    const mapRoom = room;
+    const mapKnowledge = knowledge;
     const { openMapPreview } = await import('./preview/MapPreview');
-    await openMapPreview(trigger);
+    if (room !== mapRoom) return;
+    await openMapPreview(trigger, mapRoom, mapKnowledge);
   } catch (error) {
     console.error('Could not load map preview:', error);
     announce(
@@ -379,4 +562,13 @@ for (const button of document.querySelectorAll<HTMLButtonElement>(
     void showMap(button);
   });
 }
-if (new URL(location.href).searchParams.get('view') === 'map') void showMap();
+if (
+  ['map', 'characters'].includes(
+    new URL(location.href).searchParams.get('view') ?? '',
+  )
+)
+  void showMap();
+const reconnectToken = new URLSearchParams(location.hash.slice(1)).get(
+  'reconnect',
+);
+if (reconnectToken) void enter(true, reconnectToken);

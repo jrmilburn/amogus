@@ -34,28 +34,40 @@ export type ErrorCode =
 
 /** All coordinates use world pixels; times use seconds unless explicitly named otherwise. */
 export interface ClientMessages {
+  ghostChat: { roundId: number; text: string };
   /** Direction components in [-1,1]; seq increases monotonically. */
   input: { seq: number; dx: number; dy: number };
   /** Request permission to open the assigned task at the current location. */
-  useTask: { taskId: string };
+  useTask: { taskId: string; roundId: number };
+  cancelTask: { token: string | null };
   /** Intermediate progress of a long task; the server validates ordering. */
   taskProgress: { taskId: string; step: number };
-  taskComplete: { taskId: string };
-  kill: { targetId: string };
-  vent: { action: 'enter' | 'move' | 'exit'; ventId: string };
-  sabotage: { kind: SabotageKind; roomId?: string };
+  taskComplete: { taskId: string; roundId: number; token: string };
+  kill: { targetId: string; roundId: number };
+  vent: { action: 'enter' | 'move' | 'exit'; ventId: string; roundId: number };
+  sabotage: { kind: SabotageKind; roomId?: string; roundId: number };
+  openRepair: { pointId: string; sabotageId: number; roundId: number };
+  cancelRepair: { token: string | null };
   /** Submitted panel action, never a client assertion that sabotage is fixed. */
   fixSabotage: {
+    roundId: number;
+    sabotageId: number;
+    token: string;
     pointId: string;
     action: 'switch' | 'hold' | 'release' | 'code';
     switchIndex?: number;
     code?: string;
   };
-  report: { bodyId: string };
-  emergency: Record<string, never>;
-  chat: { text: string; channel: 'living' | 'ghost' };
+  report: { bodyId: string; roundId: number };
+  emergency: { roundId: number };
+  chat: {
+    text: string;
+    channel: 'living' | 'ghost';
+    roundId: number;
+    meetingId: number;
+  };
   /** null means skip; player IDs are session IDs. */
-  vote: { targetId: string | null };
+  vote: { targetId: string | null; roundId: number; meetingId: number };
   updateSettings: Partial<SettingsValues>;
   start: Record<string, never>;
   /** Lobby-only identity updates; fields are optional but at least one is required. */
@@ -66,16 +78,48 @@ export interface ClientMessages {
 }
 
 export interface ServerMessages {
+  repairOpened: {
+    pointId: string;
+    sabotageId: number;
+    roundId: number;
+    token: string;
+    code?: string;
+  };
+  repairClosed: { token: string; error?: string };
+  taskOpened: {
+    taskId: string;
+    roundId: number;
+    token: string;
+    durationMs: number;
+  };
+  taskClosed: { token: string; error?: string };
   /** Private delivery only; crew receive an empty teammate list. */
   roleReveal: {
+    roundId: number;
     role: Role;
     teammates: { id: string; name: string }[];
     durationMs: number;
   };
   /** Private delivery only, including fake lists for impostors. */
-  taskList: { tasks: TaskAssignment[]; fake: boolean };
-  killed: { victimId: string; bodyId: string; x: number; y: number };
+  taskList: { roundId: number; tasks: TaskAssignment[]; fake: boolean };
+  /** Private to the acting impostor; durations are relative to serverNow. */
+  impostorStatus: {
+    roundId: number;
+    killReadyAt: number;
+    serverNow: number;
+    ventId: string | null;
+  };
+  /** Private to killer and victim only. Never includes the killer's identity. */
+  killed: {
+    roundId: number;
+    victimId: string;
+    bodyId: string;
+    x: number;
+    y: number;
+  };
   meetingStart: {
+    roundId: number;
+    meetingId: number;
     reason: 'report' | 'emergency';
     callerId: string;
     bodyColor?: ColorId;
@@ -83,6 +127,10 @@ export interface ServerMessages {
   };
   /** Omit voter IDs under anonymousVotes, and role under !confirmEjects. */
   voteResult: {
+    roundId: number;
+    meetingId: number;
+    ejectedName?: string;
+    ejectedColor?: ColorId;
     ejectedId: string | null;
     counts: Record<string, number>;
     skipped: number;
@@ -90,19 +138,34 @@ export interface ServerMessages {
     role?: Role;
     impostorsRemaining: number;
   };
-  gameOver: { winner: Role; reason: WinReason; roles: Record<string, Role> };
+  gameOver: {
+    roundId: number;
+    winner: Role;
+    reason: WinReason;
+    roles: Record<string, Role>;
+    lineup: { id: string; name: string; color: ColorId; role: Role }[];
+  };
+  ghostHistory: {
+    roundId: number;
+    messages: { id: number; senderId: string; name: string; text: string }[];
+  };
+  chatAccepted: { roundId: number; meetingId: number };
   error: { code: ErrorCode; message: string };
 }
 
 // Identity maps enforce that the exported names exactly match each payload map.
 export const CLIENT_MESSAGES = {
+  ghostChat: 'ghostChat',
   input: 'input',
   useTask: 'useTask',
+  cancelTask: 'cancelTask',
   taskProgress: 'taskProgress',
   taskComplete: 'taskComplete',
   kill: 'kill',
   vent: 'vent',
   sabotage: 'sabotage',
+  openRepair: 'openRepair',
+  cancelRepair: 'cancelRepair',
   fixSabotage: 'fixSabotage',
   report: 'report',
   emergency: 'emergency',
@@ -115,11 +178,18 @@ export const CLIENT_MESSAGES = {
   cancelStart: 'cancelStart',
 } as const satisfies { [K in keyof ClientMessages]: K };
 export const SERVER_MESSAGES = {
+  repairOpened: 'repairOpened',
+  repairClosed: 'repairClosed',
+  taskOpened: 'taskOpened',
+  taskClosed: 'taskClosed',
   roleReveal: 'roleReveal',
   taskList: 'taskList',
   killed: 'killed',
+  impostorStatus: 'impostorStatus',
   meetingStart: 'meetingStart',
   voteResult: 'voteResult',
+  chatAccepted: 'chatAccepted',
+  ghostHistory: 'ghostHistory',
   gameOver: 'gameOver',
   error: 'error',
 } as const satisfies { [K in keyof ServerMessages]: K };
