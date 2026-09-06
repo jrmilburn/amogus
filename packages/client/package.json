@@ -8,8 +8,8 @@
     "build": "pnpm assets && tsc --noEmit && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc --noEmit",
-    "assets": "node --import tsx ../../scripts/build-assets.ts",
-    "test": "node --import tsx --test test/*.test.ts"
+    "assets": "node --import tsx ../../scripts/build-assets.ts && node --import tsx ../../scripts/build-characters.ts",
+    "test": "pnpm assets && node --import tsx --test test/*.test.ts"
   },
   "dependencies": {
     "@mutiny/shared": "workspace:*",

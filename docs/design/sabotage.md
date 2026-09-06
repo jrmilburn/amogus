@@ -1,0 +1,15 @@
+# Sabotage controls — #15
+
+Mode: Experience with focused Operate panels. Extend the existing cold station HUD, coral impostor/fault signals and native station dialogs; no replacement visual world or bitmap assets.
+
+The fault strip sits above navigation and names the repair destination. Crisis countdowns repeat inside repair dialogs. A slow two-second red pulse is disabled for reduced motion. Impostors open the station sabotage chart with B or Sabotage; all living players can use R or Repair within 80px of a highlighted panel. These actions sit above the existing three-button row. The map uses public floor geometry and native buttons, with independently cooled room-door controls. No player locations or private assignments appear there.
+
+Lights uses five labelled current/target toggles; O₂ displays only the current panel's private code and a labelled numeric input. Reactor/Comms uses a captured pointer or Space/Enter hold, shared progress, and explicit release guidance. Escape/close returns focus to Back, cancels permission and resumes movement. Server confirmation owns completion; pending opens/commands have five-second recovery messages. Repair sessions also freeze authoritative movement. Minimap measurement observes fault-strip layout changes so assignments remain below navigation.
+
+## Verification and remaining acceptance
+
+- Unit coverage: role/phase/life/cooldown guards, strict messages, scoped tokens, range/walls/expiry, shared switches, separate O₂ codes, continuous reactor/comms holds, heartbeat/release/disconnection, exact critical deadline, occupied doors, collision and automatic reopening. Client model tests cover targeting and server-clock countdowns.
+- Four real clients cover shared faults/doors, private repair responses/codes, frozen input, lights completion, emergency denial, timed O₂ defeat and host reset. Existing five-client actions/tasks regression remains intact.
+- Browser inventory is empty in this session. No rendered screenshot, mobile/touch/focus, simultaneous browser hold, screen-reader or GPU acceptance is claimed. Local checks: open four clients, start a round, wait 30s; try each sabotage as the impostor. Use two players at the reactor, test release/blur/rejoin, enter both O₂ codes, and let each crisis expire. Verify comms hides/restores both task HUD elements and lights dims crew only. Check door rendering/collision from both sides and reopening after 10s.
+- Check 1440×900, 360×740 and short landscape: alert/minimap/task list/actions do not overlap; chart buttons remain on-screen; dialog scrolling, keyboard holds and Escape restore movement. Repeat with reduced motion and during kill/reset/disconnect. All browser/device acceptance remains pending.
+- One Impeccable detector pass returned no findings. Independent finishing source review identified overlapping map controls at very narrow widths; below 480px the floor plan now sits above separated two-column system buttons, with stacked door controls. This source-level correction still needs rendered device verification.

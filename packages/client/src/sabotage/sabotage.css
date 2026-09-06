@@ -1,0 +1,183 @@
+.sabotage-actions {
+  position: absolute;
+  z-index: 3;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(100px, calc(env(safe-area-inset-bottom) + 76px));
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  max-width: calc(100% - 48px);
+}
+.sabotage-actions button {
+  min-height: 64px;
+  min-width: 80px;
+}
+.sabotage-actions small {
+  display: block;
+}
+.sabotage-trigger {
+  background: #f59185;
+  color: #182124;
+}
+.sabotage-actions p {
+  background: #102029;
+  padding: 8px;
+  font-size: 0.875rem;
+  max-width: 28ch;
+}
+.sabotage-actions p:empty {
+  display: none;
+}
+.sabotage-alert {
+  position: absolute;
+  inset: 0 0 auto;
+  min-height: 56px;
+  box-sizing: border-box;
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  background: #702e32;
+  color: #fff2eb;
+  border-bottom: 2px solid #f59185;
+}
+.sabotage-alert span {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.875rem;
+}
+.sabotage-alert.is-critical {
+  animation: fault-pulse 2s ease-in-out infinite;
+}
+@keyframes fault-pulse {
+  50% {
+    background: #401f29;
+  }
+}
+.has-sabotage-alert .map-toolbar {
+  top: 76px;
+}
+.has-sabotage-alert .crew-progress {
+  top: 76px;
+}
+.has-sabotage-controls .map-controls {
+  display: none;
+}
+.sabotage-map-modal {
+  width: min(720px, calc(100vw - 32px));
+}
+.sabotage-chart {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 10800 / 9300;
+  margin-block: 16px;
+}
+.sabotage-chart svg {
+  width: 100%;
+  height: 100%;
+  fill: #3e5864;
+  stroke: #afc4c4;
+  stroke-width: 12;
+}
+.sabotage-chart button {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  min-height: 44px;
+  max-width: 36%;
+  padding: 6px 10px;
+  background: #f59185;
+  color: #182124;
+  font-size: 0.875rem;
+}
+.door-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.door-controls select {
+  min-width: 0;
+  flex: 1;
+}
+.repair-switches {
+  display: grid;
+  gap: 12px;
+}
+.repair-switches button {
+  min-height: 48px;
+  background: #273c45;
+  color: #dde6e4;
+  border: 2px solid #71888e;
+}
+.repair-switches button[aria-pressed='true'] {
+  border-color: #99ddcc;
+  background: #224b47;
+}
+.repair-code {
+  font: 700 2rem monospace;
+  letter-spacing: 0.3em;
+  color: #f3c681;
+}
+.repair-deadline {
+  color: #f59185;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.repair-content form {
+  display: grid;
+  gap: 12px;
+}
+.repair-content progress {
+  width: 100%;
+  accent-color: #99ddcc;
+}
+@media (max-width: 650px) {
+  .sabotage-alert {
+    gap: 2px;
+    flex-direction: column;
+    text-align: center;
+    font-size: 0.875rem;
+  }
+  .sabotage-alert span {
+    font-size: 0.75rem;
+  }
+  .has-sabotage-alert .crew-progress {
+    top: calc(var(--station-hud-bottom, 164px) + 12px);
+  }
+  .sabotage-actions p {
+    position: absolute;
+    right: 0;
+    bottom: 68px;
+    width: 28ch;
+  }
+}
+@media (max-width: 650px) and (max-height: 500px) {
+  .has-sabotage-alert .crew-progress {
+    top: 72px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sabotage-alert.is-critical {
+    animation: none;
+  }
+}
+@media (max-width: 480px) {
+  .sabotage-chart {
+    aspect-ratio: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .sabotage-chart svg {
+    grid-column: 1 / -1;
+    height: 140px;
+  }
+  .sabotage-chart button {
+    position: static;
+    transform: none;
+    max-width: none;
+  }
+  .door-controls {
+    flex-direction: column;
+  }
+}

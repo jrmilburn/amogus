@@ -1,0 +1,150 @@
+.fuel-canister {
+  position: relative;
+  isolation: isolate;
+  width: 108px;
+  height: 132px;
+  margin: 24px auto 20px;
+  border: 3px solid #a6b6b7;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #233a3b;
+}
+.fuel-canister span {
+  position: absolute;
+  top: 42px;
+  inset-inline: 8px;
+  padding: 8px;
+  text-align: center;
+  font-weight: 700;
+  color: #dde6e4;
+  background: #102029;
+}
+.fuel-fluid {
+  position: absolute;
+  inset: auto 0 0;
+  background: #e6a65a;
+}
+.pump-button,
+.scan-hold {
+  touch-action: none;
+  user-select: none;
+}
+.vent-duct {
+  position: relative;
+  height: 240px;
+  margin: 24px 12px;
+  border: 4px double #a6b6b7;
+  background: repeating-linear-gradient(
+    0deg,
+    #233a3b 0 28px,
+    #425358 28px 32px
+  );
+}
+.duct-debris {
+  position: absolute;
+  width: 64px;
+  min-height: 48px;
+  padding: 6px;
+  color: #102029;
+  background: #c6d1cd;
+  touch-action: none;
+  user-select: none;
+  z-index: 1;
+}
+.duct-debris[aria-pressed='true'] {
+  outline: 3px solid #e6a65a;
+  outline-offset: 2px;
+  z-index: 2;
+}
+.debris-0 {
+  border-radius: 0 12px 0 12px;
+}
+.debris-1 {
+  border-radius: 16px 4px;
+  background: #e6a65a;
+}
+.debris-2 {
+  border: 3px double #102029;
+  background: #99ddcc;
+}
+.debris-3 {
+  border-radius: 0 24px;
+  background: #c9d19b;
+}
+.debris-4 {
+  border-radius: 2px;
+  background: #aca7ec;
+}
+.access-display {
+  display: block;
+  min-height: 44px;
+  padding: 12px;
+  text-align: center;
+  background: #233a3b;
+  color: #99ddcc;
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+.access-input {
+  text-align: center;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+.access-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.access-keypad button {
+  min-width: 0;
+  min-height: 48px;
+  padding: 8px;
+  background: #233a3b;
+  color: #dde6e4;
+  border: 1px solid #849b9b;
+}
+.id-reader {
+  position: relative;
+  height: 116px;
+  margin-block: 28px;
+  border-block: 4px solid #849b9b;
+  background: #233a3b;
+}
+.engineer-pass {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 88px;
+  height: 88px;
+  padding: 6px;
+  border: 1px solid #99ddcc;
+  border-radius: 6px;
+  color: #102029;
+  background: #dde6e4;
+  touch-action: none;
+  user-select: none;
+  font-size: 0.75rem;
+}
+.reader-finish {
+  position: absolute;
+  right: 4px;
+  top: 44px;
+  color: #99ddcc;
+  font-size: 0.75rem;
+}
+@media (max-height: 500px) {
+  .fuel-canister {
+    height: 92px;
+    margin-block: 12px;
+  }
+  .fuel-canister span {
+    top: 24px;
+  }
+  .vent-duct {
+    height: 200px;
+    margin-block: 12px;
+  }
+  .id-reader {
+    margin-block: 12px;
+  }
+}

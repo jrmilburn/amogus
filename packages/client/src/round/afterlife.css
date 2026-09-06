@@ -1,0 +1,73 @@
+.round-finish {
+  width: min(760px, calc(100vw - 32px));
+  border-top: 4px solid #f59185;
+}
+.round-finish.is-victory {
+  border-top-color: #99ddcc;
+}
+.round-finish h2 {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+}
+.winning-lineup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  margin-block: 24px;
+}
+.winning-lineup figure {
+  margin: 0;
+  width: 112px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.winning-lineup canvas {
+  width: 112px;
+  height: auto;
+}
+.round-finish summary {
+  min-height: 44px;
+  cursor: pointer;
+}
+.round-finish [data-again] {
+  margin-top: 24px;
+  min-height: 48px;
+}
+.ghost-chat {
+  position: absolute;
+  z-index: 4;
+  left: 24px;
+  bottom: 24px;
+  width: min(340px, calc(100% - 48px));
+  background: #102029;
+  border: 1px solid #71888e;
+  padding: 12px;
+  box-sizing: border-box;
+}
+.ghost-chat summary {
+  min-height: 44px;
+  cursor: pointer;
+  color: #bb99dd;
+}
+.ghost-chat [role='log'] {
+  max-height: 140px;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+.ghost-chat form {
+  display: grid;
+  gap: 8px;
+}
+.ghost-chat input {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+.meeting-intro .ghost-chat {
+  position: static;
+  width: 100%;
+  margin-top: 16px;
+}
+.ghost-chat p {
+  font-size: 0.875rem;
+}

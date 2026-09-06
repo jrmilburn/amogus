@@ -11,6 +11,8 @@ import { pointInPolygon, type MapDef } from '@mutiny/shared/maps';
 import { Camera, letterbox, overlaps, type Bounds, type Point } from './Camera';
 import { floorBoundaries } from './boundaries';
 import type { StationAssets } from './assets';
+import { VisionLighting } from './VisionLighting';
+import { ROOM_THEMES, roomFixtures, TASK_ART } from './roomThemes';
 
 type LayerName =
   'floor' | 'walls' | 'objects' | 'entities' | 'lighting' | 'hud';
@@ -28,6 +30,10 @@ export class Renderer {
     ]),
   ) as Record<LayerName, Container>;
   private world = new Container({ label: 'world' });
+  private ownForeground = new Container({ label: 'own engineer foreground' });
+  private ownClip = new Graphics();
+  private localEntityId?: string;
+  private limitedVision = false;
   private clip = new Graphics();
   private items: StaticItem[] = [];
   private entities = new Map<string, Container>();
@@ -38,6 +44,14 @@ export class Renderer {
   private running = true;
   private tickCost = 0;
   private previousCull = { x: Infinity, y: Infinity };
+  private vision?: VisionLighting;
+  private closedDoorArt = new Graphics();
+  private doorSignature = '';
+  private emissives: Sprite[] = [];
+  private alarm = false;
+  setAlarm(active: boolean) {
+    this.alarm = active;
+  }
   private visibility = () => {
     if (document.hidden) this.app.stop();
     else if (this.running) this.app.start();
@@ -83,9 +97,18 @@ export class Renderer {
       ] as const)
         this.world.addChild(this.layers[name]);
       this.layers.entities.sortableChildren = true;
-      this.app.stage.addChild(this.world, this.clip, this.layers.hud);
+      this.app.stage.addChild(
+        this.world,
+        this.clip,
+        this.layers.hud,
+        this.ownForeground,
+        this.ownClip,
+      );
       this.world.mask = this.clip;
+      this.ownForeground.mask = this.ownClip;
       this.buildMap();
+      this.layers.objects.addChild(this.closedDoorArt);
+      this.vision = new VisionLighting(this.app, this.layers.hud, this.map);
       this.app.ticker.maxFPS = 60;
       this.app.ticker.add((ticker) => this.update(ticker.deltaMS / 1000));
       document.addEventListener('visibilitychange', this.visibility);
@@ -144,11 +167,12 @@ export class Renderer {
     const glow = this.sprite('lighting', 'glow', point, width);
     glow.blendMode = 'add';
     glow.alpha = 0.45;
+    this.emissives.push(glow);
   }
   private buildMap() {
     for (const corridor of this.map.corridors)
       this.tile('floor', 'grate', corridor, 0xc3ccd1);
-    for (const [index, room] of this.map.rooms.entries()) {
+    for (const room of this.map.rooms) {
       const xs = room.polygon.map((p) => p.x),
         ys = room.polygon.map((p) => p.y);
       const bounds = {
@@ -161,11 +185,7 @@ export class Renderer {
         'floor',
         'floor',
         bounds,
-        room.kind === 'hub'
-          ? 0xd8e2db
-          : room.kind === 'dead-end'
-            ? 0xc2c4bc
-            : 0xc5d1d8,
+        ROOM_THEMES[room.id]?.tint ?? 0xc5d1d8,
       );
       if (room.polygon.length !== 4) {
         const mask = new Graphics()
@@ -197,34 +217,54 @@ export class Renderer {
         },
       });
       label.anchor.set(0.5);
-      label.position.set(cx, cy - 200);
+      label.position.set(cx, cy - 130);
       label.alpha = 0.5;
       this.add('floor', label, {
         x: cx - 600,
-        y: cy - 230,
+        y: cy - 160,
         width: 1200,
         height: 70,
       });
-      // Wall-side fixtures sit outside interaction locations and do not imply collision.
-      for (const side of [-1, 1]) {
-        const p = {
-          x: cx + side * (bounds.width / 2 - 170),
-          y: cy + (index % 2 ? 260 : -260),
-        };
-        this.sprite(
-          'objects',
-          room.id === 'cryo' || room.id === 'reactor' || room.id === 'scrubber'
-            ? 'tank'
-            : 'crate',
-          p,
-          176,
-        );
+      const theme = ROOM_THEMES[room.id];
+      if (theme) {
+        const purpose = new Text({
+          text: theme.purpose,
+          style: {
+            fontFamily: 'Trebuchet MS, sans-serif',
+            fontSize: 18,
+            fill: theme.accent,
+            letterSpacing: 2,
+          },
+        });
+        purpose.anchor.set(0.5);
+        purpose.position.set(cx, cy - 86);
+        purpose.alpha = 0.8;
+        this.add('floor', purpose, bounds);
+        // Flush service channels connect machinery to its room's instruments.
+        const channels = new Graphics();
+        for (const task of this.map.tasks.filter((t) => t.room === room.id)) {
+          channels
+            .moveTo(task.x, task.y)
+            .lineTo(task.x, cy + 65)
+            .lineTo(cx, cy + 65);
+        }
+        channels.stroke({ color: theme.accent, width: 5, alpha: 0.22 });
+        this.add('floor', channels, bounds);
+        for (const fixture of roomFixtures(this.map, room)) {
+          this.sprite(
+            'objects',
+            fixture.art,
+            fixture,
+            fixture.width,
+            fixture.height,
+          );
+        }
       }
       if (room.id === 'commons') {
         const ring = new Graphics()
-          .circle(cx, cy, 300)
+          .circle(cx, cy, 230)
           .stroke({ width: 5, color: 0x9eaa9c, alpha: 0.45 })
-          .circle(cx, cy, 340)
+          .circle(cx, cy, 260)
           .stroke({ width: 2, color: 0x869f9c, alpha: 0.3 });
         this.add('floor', ring, bounds);
         for (const spawn of this.map.spawnPoints) {
@@ -306,7 +346,7 @@ export class Renderer {
       this.add('objects', g, door);
     }
     for (const task of this.map.tasks) {
-      this.sprite('objects', 'console', task, 144);
+      this.sprite('objects', TASK_ART[task.type] ?? 'console', task, 144);
       const dot = new Graphics()
         .circle(task.x + 46, task.y - 48, 6)
         .fill(0xa8d5c4);
@@ -320,7 +360,20 @@ export class Renderer {
     for (const vent of this.map.vents)
       this.sprite('objects', 'vent', vent, 136);
     for (const panel of this.map.sabotagePoints) {
-      this.sprite('objects', 'console', panel, 156, 156, 0xeac69a);
+      this.sprite(
+        'objects',
+        panel.kind === 'lights'
+          ? 'switchboard'
+          : panel.kind.startsWith('o2')
+            ? 'scrubber'
+            : panel.kind === 'comms'
+              ? 'servers'
+              : 'console',
+        panel,
+        156,
+        156,
+        0xeac69a,
+      );
       this.light(panel, 340);
     }
     for (const camera of this.map.cameras ?? []) {
@@ -346,12 +399,27 @@ export class Renderer {
         .rect(box.x, box.y, box.width, box.height)
         .fill(0xffffff);
       this.world.scale.set(box.scale);
+      this.ownForeground.scale.set(box.scale);
+      this.ownClip
+        .clear()
+        .rect(box.x, box.y, box.width, box.height)
+        .fill(0xffffff);
     }
     const box = letterbox(this.screen);
     this.world.position.set(
       box.x + box.width / 2 - this.camera.x * box.scale,
       box.y + box.height / 2 - this.camera.y * box.scale,
     );
+    this.ownForeground.position.copyFrom(this.world.position);
+    const own = this.localEntityId
+      ? this.entities.get(this.localEntityId)
+      : undefined;
+    if (own) {
+      const parent = this.limitedVision
+        ? this.ownForeground
+        : this.layers.entities;
+      if (own.parent !== parent) parent.addChild(own);
+    }
     if (
       Math.abs(this.previousCull.x - this.camera.x) > 4 ||
       Math.abs(this.previousCull.y - this.camera.y) > 4
@@ -361,7 +429,19 @@ export class Renderer {
         item.node.visible = overlaps(view, item.bounds);
       this.previousCull = { x: this.camera.x, y: this.camera.y };
     }
-    for (const entity of this.entities.values()) entity.zIndex = entity.y;
+    this.vision?.update(this.camera);
+    for (const glow of this.emissives) {
+      glow.tint = this.alarm ? 0xf59185 : 0xffffff;
+      glow.alpha = this.alarm
+        ? this.motion.matches
+          ? 0.5
+          : 0.38 + 0.18 * Math.sin(performance.now() / 700)
+        : 0.45;
+    }
+    for (const entity of this.entities.values()) {
+      entity.zIndex = entity.y;
+      entity.renderable = entity === own || this.isPointVisible(entity);
+    }
     this.tickCost = performance.now() - start;
   }
   /** Public lifecycle/API for the movement renderer in #7. Containers are renderer-owned. */
@@ -375,10 +455,36 @@ export class Renderer {
     if (entity) {
       entity.destroy({ children: true });
       this.entities.delete(id);
+      if (this.localEntityId === id) this.localEntityId = undefined;
     }
+  }
+  setLocalEntity(id: string) {
+    this.localEntityId = id;
   }
   roomAt(point: Point) {
     return this.map.rooms.find((room) => pointInPolygon(point, room.polygon));
+  }
+  setVision(origin?: Point, radius = 0, affectedByLights = true) {
+    this.limitedVision = Boolean(origin);
+    this.vision?.setView(origin, radius, affectedByLights);
+  }
+  setVisionMultiplier(n: number) {
+    this.vision?.setVisionMultiplier(n);
+  }
+  setClosedVisionDoors(walls: MapDef['walls']) {
+    this.vision?.setClosedDoors(walls);
+    const signature = walls.map((w) => `${w.x},${w.y}`).join(';');
+    if (signature === this.doorSignature) return;
+    this.doorSignature = signature;
+    this.closedDoorArt.clear();
+    for (const wall of walls)
+      this.closedDoorArt
+        .rect(wall.x, wall.y, wall.width, wall.height)
+        .fill(0x6f7d85)
+        .stroke({ color: 0xff8f99, width: 6 });
+  }
+  isPointVisible(point: Point) {
+    return this.vision?.canSee(point) ?? true;
   }
   pause() {
     this.running = false;
@@ -396,6 +502,8 @@ export class Renderer {
       updateMs: this.tickCost,
       fps: this.app.ticker.FPS,
       resolution: this.app.renderer.resolution,
+      lightingUpdateMs: this.vision?.updateMs ?? 0,
+      lightingMaskUpdates: this.vision?.maskUpdates ?? 0,
     };
   }
   destroy() {
@@ -403,6 +511,8 @@ export class Renderer {
     this.destroyed = true;
     this.running = false;
     document.removeEventListener('visibilitychange', this.visibility);
+    this.vision?.destroy();
+    this.vision = undefined;
     // Assets are cached for reopening the preview; destroying a scene must not destroy shared textures.
     if (this.initialized)
       this.app.destroy(true, {

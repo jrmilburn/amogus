@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
+import { roomPropArtwork } from './station-props.js';
 
 // Original, deterministic material and fixture art. One padded atlas, no remote assets.
 const size = 256,
@@ -20,6 +21,7 @@ const rivets = [
   )
   .join('');
 const assets: Record<string, string> = {
+  ...roomPropArtwork,
   floor: frame(
     `<rect width="256" height="256" fill="#35464c"/><rect x="3" y="3" width="250" height="250" rx="8" fill="#3e5157" stroke="#1d2b31" stroke-width="5"/><path d="M9 20V9h238M12 236h232" fill="none" stroke="#617278" stroke-opacity=".5"/><path d="M20 60h216M20 64h216M20 192h216M20 196h216" stroke="#34454b"/>${rivets}<path d="M180 30h40m-30 7h30" stroke="#809092" stroke-opacity=".23"/>`,
   ),

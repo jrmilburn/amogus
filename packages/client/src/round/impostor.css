@@ -1,0 +1,116 @@
+.impostor-actions {
+  display: flex;
+  gap: 12px;
+}
+.impostor-actions > button {
+  width: 80px;
+  min-height: 64px;
+  padding: 8px;
+}
+.impostor-actions small {
+  display: block;
+}
+.impostor-kill {
+  background: #ff8f99;
+  color: #182124;
+}
+.impostor-vent {
+  background: #b4cad0;
+  color: #182124;
+}
+.impostor-kill:hover:not(:disabled) {
+  background: #ffb1b8;
+}
+.impostor-kill:active:not(:disabled) {
+  background: #ee6677;
+}
+.impostor-vent:hover:not(:disabled) {
+  background: #d4e2e6;
+}
+.impostor-vent:active:not(:disabled) {
+  background: #93b1bb;
+}
+.impostor-feedback,
+.task-feedback {
+  position: absolute;
+  bottom: 76px;
+  right: 0;
+  width: max-content;
+  max-width: min(30ch, calc(100vw - 48px));
+  margin: 0;
+  padding: 8px;
+  background: #102029;
+  color: #dde6e4;
+  font-size: 0.875rem;
+}
+.impostor-feedback:empty {
+  display: none;
+}
+.vent-routes {
+  position: absolute;
+  right: 0;
+  bottom: 160px;
+  width: min(312px, calc(100vw - 48px));
+  max-height: calc(100dvh - 240px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 12px;
+  background: #102029;
+  border: 1px solid #425358;
+  border-radius: 12px;
+}
+.vent-routes p {
+  margin: 0 0 12px;
+  font-size: 0.875rem;
+}
+.vent-routes button {
+  display: block;
+  min-height: 48px;
+  width: 100%;
+  margin-top: 8px;
+}
+.is-in-vent .map-controls,
+.is-in-vent .task-feedback,
+.is-in-vent .round-assignment {
+  display: none;
+}
+.is-fake-task h2 {
+  color: #ff8f99;
+}
+.kill-cut-in {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(9 18 25 / 94%);
+  pointer-events: none;
+}
+.kill-cut-in > div {
+  width: min(560px, 100%);
+  padding-block: 24px;
+  border-block: 2px solid #ff8f99;
+  animation: suit-signal-loss 360ms ease-out;
+}
+.kill-cut-in h2 {
+  color: #ff8f99;
+  font-size: clamp(2rem, 8vw, 4rem);
+  margin: 12px 0;
+}
+.kill-cut-in p {
+  max-width: 44ch;
+}
+@keyframes suit-signal-loss {
+  from {
+    clip-path: inset(45% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kill-cut-in > div {
+    animation: none;
+  }
+}

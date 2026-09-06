@@ -1,0 +1,9 @@
+# Task framework — #10
+
+Extends the existing station world with Impeccable: the map remains primary, amber outlines the nearest unfinished assigned station within 80 world pixels, and the bottom-right Use action is at least 64px tall. E and touch use the same server request. Top-left private assignments show room, task, long-task stage and a textual Done/tick. A native disclosure starts collapsed on smaller screens. The top green native progress bar represents only completed real assignments.
+
+The station-check modal protects focus and freezes local prediction plus server movement. Its large hold button supports pointer capture, touch, Space and Enter; release, pointer cancellation, blur or hidden tabs reset the hold. Esc/× cancels the attempt while retaining earlier stages and the map connection. Status feedback covers waiting, confirmation and rejection. Closing/remounting cleans up inputs, timers, subscriptions and highlight graphics. Covered gameplay key handlers ignore modal events, preserving native keyboard scrolling.
+
+All eight mapped tasks now use distinct instruments, detailed in [minigames-a.md](minigames-a.md) and [minigames-b.md](minigames-b.md); fake-task interaction is #14. Task identity is private, progress comes from server confirmation, and forged actor IDs are not accepted.
+
+Finishing review corrected narrow-landscape toolbar/progress overlap and modal keyboard scrolling. Mechanical detector found no issues. No browser is available in this session (`apps: [], browsers: []`), so desktop/mobile rendering, 360px/640×360 layouts, touch/keyboard holds, cancellation without closing the map, focus restoration, and freeze/resume remain browser acceptance checks. Automated tests cover server validation, long-task ordering, cancellation/replay, private freeze and progress reaching five real clients; they do not verify rendered UI.

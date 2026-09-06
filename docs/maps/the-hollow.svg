@@ -1,135 +1,135 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1412" viewBox="0 0 1400 1412"><rect width="100%" height="100%" fill="#f4f2ec"/><g font-family="sans-serif" fill="#20292d">
+<svg xmlns="http://www.w3.org/2000/svg" width="1076" height="1133" viewBox="0 0 1076 1133"><rect width="100%" height="100%" fill="#f4f2ec"/><g font-family="sans-serif" fill="#20292d">
 <text x="52" y="48" font-size="28" font-weight="bold">The Hollow — collision review</text>
 <text x="52" y="78" font-size="16">10 rooms · 18 task stations · 9 vents · 20 doors</text>
-<text x="52" y="106" font-size="14">Outer circuit: 40,800 px / 160 px/s = 255 s, uninterrupted. Not a playtest measurement.</text>
-<rect x="52" y="148" width="1296" height="1116" fill="#ffffff"/>
-<rect x="52" y="148" width="1296" height="99" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="52" y="247" width="81" height="90" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="259" y="247" width="378" height="28.799999999999997" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="763" y="247" width="378" height="28.799999999999997" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="1267" y="247" width="81" height="90" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="259" y="308.2" width="378" height="28.799999999999997" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="763" y="308.2" width="378" height="28.799999999999997" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="52" y="337" width="127.8" height="738" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="212.2" y="337" width="975.5999999999999" height="117" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="1220.2" y="337" width="127.8" height="738" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="212.2" y="454" width="208.79999999999998" height="90" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="547" y="454" width="640.8" height="90" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="212.2" y="544" width="255.6" height="99" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="500.2" y="544" width="687.6" height="99" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="212.2" y="643" width="199.79999999999998" height="46.8" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="556" y="643" width="288" height="46.8" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="988" y="643" width="199.79999999999998" height="46.8" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="212.2" y="722.1999999999999" width="199.79999999999998" height="46.8" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="556" y="722.1999999999999" width="288" height="46.8" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="988" y="722.1999999999999" width="199.79999999999998" height="46.8" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="212.2" y="769" width="687.6" height="99" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="932.1999999999999" y="769" width="255.6" height="99" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="212.2" y="868" width="640.8" height="90" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="979" y="868" width="208.79999999999998" height="90" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="212.2" y="958" width="975.5999999999999" height="117" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="52" y="1075" width="81" height="90" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="259" y="1075" width="378" height="28.799999999999997" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="763" y="1075" width="378" height="28.799999999999997" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="1267" y="1075" width="81" height="90" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="259" y="1136.1999999999998" width="378" height="28.799999999999997" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="763" y="1136.1999999999998" width="378" height="28.799999999999997" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<rect x="52" y="1165" width="1296" height="99" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
-<polygon points="133,247 259,247 259,337 133,337" fill="#e3e7e8"/>
-<polygon points="637,247 763,247 763,337 637,337" fill="#e3e7e8"/>
-<polygon points="1141,247 1267,247 1267,337 1141,337" fill="#e3e7e8"/>
-<polygon points="1141,1075 1267,1075 1267,1165 1141,1165" fill="#e3e7e8"/>
-<polygon points="637,1075 763,1075 763,1165 637,1165" fill="#e3e7e8"/>
-<polygon points="133,1075 259,1075 259,1165 133,1165" fill="#e3e7e8"/>
-<polygon points="412,643 556,643 556,769 412,769" fill="#d5e7e2"/>
-<polygon points="844,643 988,643 988,769 844,769" fill="#d5e7e2"/>
-<polygon points="421,454 547,454 547,544 421,544" fill="#e8dccd"/>
-<polygon points="853,868 979,868 979,958 853,958" fill="#e8dccd"/>
-<polyline points="196,292 700,292 1204,292 1204,706 1204,1120 700,1120 196,1120 196,706 196,292" fill="none" stroke="#728d9b" stroke-width="2" stroke-dasharray="7 5"/>
-<rect x="256.84000000000003" y="275.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="179.8" y="334.84000000000003" width="32.4" height="4.32" fill="#d28c23"/>
-<rect x="760.8399999999999" y="275.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="634.84" y="275.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="1138.84" y="275.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="1187.8" y="334.84000000000003" width="32.4" height="4.32" fill="#d28c23"/>
-<rect x="1138.84" y="1103.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="1187.8" y="1072.84" width="32.4" height="4.32" fill="#d28c23"/>
-<rect x="634.84" y="1103.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="760.8399999999999" y="1103.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="256.84000000000003" y="1103.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="179.8" y="1072.84" width="32.4" height="4.32" fill="#d28c23"/>
-<rect x="409.84" y="689.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="553.8399999999999" y="689.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="467.8" y="640.8399999999999" width="32.4" height="4.32" fill="#d28c23"/>
-<rect x="841.8399999999999" y="689.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="985.8399999999999" y="689.8" width="4.32" height="32.4" fill="#d28c23"/>
-<rect x="899.8" y="766.84" width="32.4" height="4.32" fill="#d28c23"/>
-<rect x="467.8" y="541.8399999999999" width="32.4" height="4.32" fill="#d28c23"/>
-<rect x="899.8" y="865.8399999999999" width="32.4" height="4.32" fill="#d28c23"/>
-<text x="196" y="233" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Dock</text>
-<text x="700" y="233" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Relay</text>
-<text x="1204" y="233" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Cryo Lab</text>
-<text x="1204" y="1061" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Engine House</text>
-<text x="700" y="1061" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Stores</text>
-<text x="196" y="1061" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Scrubber</text>
-<text x="484" y="629" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Commons</text>
-<text x="916" y="629" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Switchyard</text>
-<text x="484" y="440" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Archive</text>
-<text x="916" y="854" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Reactor Well</text>
-<polyline points="232,319 232,1147" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
-<polyline points="520,526 232,319" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
-<polyline points="520,526 232,1147" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
-<polyline points="736,319 952,733" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
-<polyline points="1240,319 736,319" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
-<polyline points="1240,319 952,733" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
-<polyline points="1240,1147 736,1147" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
-<polyline points="1240,1147 952,940" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
-<polyline points="952,940 736,1147" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
-<circle cx="163.6" cy="272.2" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="228.4" cy="272.2" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="667.6" cy="272.2" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="1236.3999999999999" cy="272.2" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="1171.6" cy="1139.8" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="667.6" cy="1139.8" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="732.4" cy="1139.8" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="163.6" cy="1139.8" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="443.5" cy="674.5" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="956.5" cy="674.5" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="451.59999999999997" cy="479.2" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="883.6" cy="932.8" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="667.6" cy="292" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="516.4" cy="499" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="1171.6" cy="292" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="948.4" cy="706" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="667.6" cy="1120" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<circle cx="1236.3999999999999" cy="1120" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
-<rect x="227.04999999999998" y="315.4" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
-<rect x="515.05" y="522.4" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
-<rect x="227.04999999999998" y="1143.4" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
-<rect x="731.05" y="315.4" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
-<rect x="1235.05" y="315.4" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
-<rect x="947.05" y="729.4" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
-<rect x="731.05" y="1143.4" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
-<rect x="1235.05" y="1143.4" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
-<rect x="947.05" y="936.4" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
-<path d="M 875.5 667.5 L 882.5 674.5 L 875.5 681.5 L 868.5 674.5 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
-<path d="M 883.6 886.1999999999999 L 890.6 893.1999999999999 L 883.6 900.1999999999999 L 876.6 893.1999999999999 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
-<path d="M 948.4 886.1999999999999 L 955.4 893.1999999999999 L 948.4 900.1999999999999 L 941.4 893.1999999999999 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
-<path d="M 163.6 1093.1999999999998 L 170.6 1100.1999999999998 L 163.6 1107.1999999999998 L 156.6 1100.1999999999998 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
-<path d="M 1171.6 265.2 L 1178.6 272.2 L 1171.6 279.2 L 1164.6 272.2 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
-<path d="M 732.4 265.2 L 739.4 272.2 L 732.4 279.2 L 725.4 272.2 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
-<circle cx="507.4" cy="706" r="2.5" fill="#24754c"/>
-<circle cx="502.9" cy="719.77" r="2.5" fill="#24754c"/>
-<circle cx="491.2" cy="728.23" r="2.5" fill="#24754c"/>
-<circle cx="476.8" cy="728.23" r="2.5" fill="#24754c"/>
-<circle cx="465.09999999999997" cy="719.77" r="2.5" fill="#24754c"/>
-<circle cx="460.59999999999997" cy="706" r="2.5" fill="#24754c"/>
-<circle cx="465.09999999999997" cy="692.23" r="2.5" fill="#24754c"/>
-<circle cx="476.8" cy="683.77" r="2.5" fill="#24754c"/>
-<circle cx="491.2" cy="683.77" r="2.5" fill="#24754c"/>
-<circle cx="502.9" cy="692.23" r="2.5" fill="#24754c"/>
-<circle cx="484" cy="706" r="8" fill="#fff" stroke="#b74630" stroke-width="3"/>
-<text x="52" y="1304" font-size="15">Dark = solid collision / void · White = corridors · Green rooms = hubs · Sand rooms = dead ends</text>
-<text x="52" y="1332" font-size="15">Blue dots = tasks · Plum rectangles / dotted links = vents · Red diamonds = sabotage · Amber bars = doors</text>
-<text x="52" y="1360" font-size="14">Commons: green dots = spawns, red ring = emergency button. Doors shown open; closing adds collision.</text>
+<text x="52" y="106" font-size="14">Outer circuit: 30,600 px / 200 px/s = 153 s, uninterrupted. Not a playtest measurement.</text>
+<rect x="52" y="148" width="972" height="837" fill="#ffffff"/>
+<rect x="52" y="148" width="972" height="74.25" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="52" y="222.25" width="60.75" height="67.5" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="207.25" y="222.25" width="283.5" height="21.599999999999998" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="585.25" y="222.25" width="283.5" height="21.599999999999998" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="963.25" y="222.25" width="60.75" height="67.5" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="207.25" y="268.15" width="283.5" height="21.599999999999998" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="585.25" y="268.15" width="283.5" height="21.599999999999998" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="52" y="289.75" width="95.85" height="553.5" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="172.14999999999998" y="289.75" width="731.6999999999999" height="87.75" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="928.15" y="289.75" width="95.85" height="553.5" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="172.14999999999998" y="377.5" width="156.6" height="67.5" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="423.25" y="377.5" width="480.59999999999997" height="67.5" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="172.14999999999998" y="445" width="191.7" height="74.25" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="388.15" y="445" width="515.6999999999999" height="74.25" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="172.14999999999998" y="519.25" width="149.85" height="35.1" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="430" y="519.25" width="216" height="35.1" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="754" y="519.25" width="149.85" height="35.1" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="172.14999999999998" y="578.65" width="149.85" height="35.1" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="430" y="578.65" width="216" height="35.1" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="754" y="578.65" width="149.85" height="35.1" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="172.14999999999998" y="613.75" width="515.6999999999999" height="74.25" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="712.15" y="613.75" width="191.7" height="74.25" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="172.14999999999998" y="688" width="480.59999999999997" height="67.5" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="747.25" y="688" width="156.6" height="67.5" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="172.14999999999998" y="755.5" width="731.6999999999999" height="87.75" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="52" y="843.25" width="60.75" height="67.5" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="207.25" y="843.25" width="283.5" height="21.599999999999998" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="585.25" y="843.25" width="283.5" height="21.599999999999998" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="963.25" y="843.25" width="60.75" height="67.5" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="207.25" y="889.15" width="283.5" height="21.599999999999998" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="585.25" y="889.15" width="283.5" height="21.599999999999998" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<rect x="52" y="910.75" width="972" height="74.25" fill="#343e42" stroke="#667175" stroke-width="0.4"/>
+<polygon points="112.75,222.25 207.25,222.25 207.25,289.75 112.75,289.75" fill="#e3e7e8"/>
+<polygon points="490.75,222.25 585.25,222.25 585.25,289.75 490.75,289.75" fill="#e3e7e8"/>
+<polygon points="868.75,222.25 963.25,222.25 963.25,289.75 868.75,289.75" fill="#e3e7e8"/>
+<polygon points="868.75,843.25 963.25,843.25 963.25,910.75 868.75,910.75" fill="#e3e7e8"/>
+<polygon points="490.75,843.25 585.25,843.25 585.25,910.75 490.75,910.75" fill="#e3e7e8"/>
+<polygon points="112.75,843.25 207.25,843.25 207.25,910.75 112.75,910.75" fill="#e3e7e8"/>
+<polygon points="322,519.25 430,519.25 430,613.75 322,613.75" fill="#d5e7e2"/>
+<polygon points="646,519.25 754,519.25 754,613.75 646,613.75" fill="#d5e7e2"/>
+<polygon points="328.75,377.5 423.25,377.5 423.25,445 328.75,445" fill="#e8dccd"/>
+<polygon points="652.75,688 747.25,688 747.25,755.5 652.75,755.5" fill="#e8dccd"/>
+<polyline points="160,256 538,256 916,256 916,566.5 916,877 538,877 160,877 160,566.5 160,256" fill="none" stroke="#728d9b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="205.63" y="243.85" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="147.85" y="288.13" width="24.3" height="3.2399999999999998" fill="#d28c23"/>
+<rect x="583.63" y="243.85" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="489.13" y="243.85" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="867.13" y="243.85" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="903.85" y="288.13" width="24.3" height="3.2399999999999998" fill="#d28c23"/>
+<rect x="867.13" y="864.85" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="903.85" y="841.63" width="24.3" height="3.2399999999999998" fill="#d28c23"/>
+<rect x="489.13" y="864.85" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="583.63" y="864.85" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="205.63" y="864.85" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="147.85" y="841.63" width="24.3" height="3.2399999999999998" fill="#d28c23"/>
+<rect x="320.38" y="554.3499999999999" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="428.38" y="554.3499999999999" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="363.84999999999997" y="517.63" width="24.3" height="3.2399999999999998" fill="#d28c23"/>
+<rect x="644.38" y="554.3499999999999" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="752.38" y="554.3499999999999" width="3.2399999999999998" height="24.3" fill="#d28c23"/>
+<rect x="687.85" y="612.13" width="24.3" height="3.2399999999999998" fill="#d28c23"/>
+<rect x="363.84999999999997" y="443.38" width="24.3" height="3.2399999999999998" fill="#d28c23"/>
+<rect x="687.85" y="686.38" width="24.3" height="3.2399999999999998" fill="#d28c23"/>
+<text x="160" y="208.25" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Dock</text>
+<text x="538" y="208.25" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Relay</text>
+<text x="916" y="208.25" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Cryo Lab</text>
+<text x="916" y="829.25" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Engine House</text>
+<text x="538" y="829.25" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Stores</text>
+<text x="160" y="829.25" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Scrubber</text>
+<text x="376" y="505.25" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Commons</text>
+<text x="700" y="505.25" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Switchyard</text>
+<text x="376" y="363.5" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Archive</text>
+<text x="700" y="674" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" stroke="#343e42" stroke-width="5" paint-order="stroke">Reactor Well</text>
+<polyline points="187,276.25 187,897.25" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
+<polyline points="403,431.5 187,276.25" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
+<polyline points="403,431.5 187,897.25" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
+<polyline points="565,276.25 727,586.75" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
+<polyline points="943,276.25 565,276.25" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
+<polyline points="943,276.25 727,586.75" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
+<polyline points="943,897.25 565,897.25" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
+<polyline points="943,897.25 727,742" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
+<polyline points="727,742 565,897.25" fill="none" stroke="#aa728e" stroke-width="1.2" stroke-dasharray="3 6" opacity="0.7"/>
+<circle cx="135.7" cy="241.14999999999998" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="184.29999999999998" cy="241.14999999999998" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="513.7" cy="241.14999999999998" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="940.3" cy="241.14999999999998" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="891.6999999999999" cy="891.85" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="513.7" cy="891.85" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="565" cy="872.5" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="135.7" cy="891.85" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="345.625" cy="542.875" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="730.375" cy="542.875" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="351.7" cy="396.4" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="675.6999999999999" cy="736.6" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="513.7" cy="256" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="400.3" cy="411.25" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="891.6999999999999" cy="256" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="724.3" cy="566.5" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="513.7" cy="877" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<circle cx="940.3" cy="877" r="5" fill="#206ca0" stroke="#fff" stroke-width="1"/>
+<rect x="182.04999999999998" y="272.65" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
+<rect x="398.05" y="427.9" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
+<rect x="182.04999999999998" y="893.65" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
+<rect x="560.05" y="272.65" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
+<rect x="938.05" y="272.65" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
+<rect x="722.05" y="583.15" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
+<rect x="560.05" y="893.65" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
+<rect x="938.05" y="893.65" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
+<rect x="722.05" y="738.4" width="9.9" height="7.199999999999999" fill="#9a426f" stroke="#fff" stroke-width="1"/>
+<path d="M 669.625 535.875 L 676.625 542.875 L 669.625 549.875 L 662.625 542.875 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
+<path d="M 675.6999999999999 699.9 L 682.6999999999999 706.9 L 675.6999999999999 713.9 L 668.6999999999999 706.9 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
+<path d="M 724.3 699.9 L 731.3 706.9 L 724.3 713.9 L 717.3 706.9 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
+<path d="M 135.7 855.15 L 142.7 862.15 L 135.7 869.15 L 128.7 862.15 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
+<path d="M 891.6999999999999 234.14999999999998 L 898.6999999999999 241.14999999999998 L 891.6999999999999 248.14999999999998 L 884.6999999999999 241.14999999999998 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
+<path d="M 562.3 234.14999999999998 L 569.3 241.14999999999998 L 562.3 248.14999999999998 L 555.3 241.14999999999998 Z" fill="#b74630" stroke="#fff" stroke-width="1"/>
+<circle cx="393.55" cy="566.5" r="2.5" fill="#24754c"/>
+<circle cx="390.175" cy="576.8275" r="2.5" fill="#24754c"/>
+<circle cx="381.4" cy="583.1724999999999" r="2.5" fill="#24754c"/>
+<circle cx="370.59999999999997" cy="583.1724999999999" r="2.5" fill="#24754c"/>
+<circle cx="361.825" cy="576.8275" r="2.5" fill="#24754c"/>
+<circle cx="358.45" cy="566.5" r="2.5" fill="#24754c"/>
+<circle cx="361.825" cy="556.1724999999999" r="2.5" fill="#24754c"/>
+<circle cx="370.59999999999997" cy="549.8275" r="2.5" fill="#24754c"/>
+<circle cx="381.4" cy="549.8275" r="2.5" fill="#24754c"/>
+<circle cx="390.175" cy="556.1724999999999" r="2.5" fill="#24754c"/>
+<circle cx="376" cy="566.5" r="8" fill="#fff" stroke="#b74630" stroke-width="3"/>
+<text x="52" y="1025" font-size="15">Dark = solid collision / void · White = corridors · Green rooms = hubs · Sand rooms = dead ends</text>
+<text x="52" y="1053" font-size="15">Blue dots = tasks · Plum rectangles / dotted links = vents · Red diamonds = sabotage · Amber bars = doors</text>
+<text x="52" y="1081" font-size="14">Commons: green dots = spawns, red ring = emergency button. Doors shown open; closing adds collision.</text>
 </g></svg>

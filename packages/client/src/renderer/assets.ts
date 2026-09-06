@@ -20,6 +20,20 @@ export async function loadStationAssets(
     'emergency',
     'lamp',
     'glow',
+    'files',
+    'servers',
+    'relay',
+    'cryopod',
+    'engine',
+    'suits',
+    'supplies',
+    'scrubber',
+    'cleaning',
+    'switchboard',
+    'bench',
+    'samples',
+    'access',
+    'reactor',
   ]) {
     if (!sheet.textures[name])
       throw new Error(`Station atlas is missing ${name}.`);

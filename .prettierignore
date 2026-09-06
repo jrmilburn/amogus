@@ -7,3 +7,4 @@ plan.md
 docs/maps/*.svg
 
 packages/client/public/assets/station/
+packages/client/public/assets/engineer/

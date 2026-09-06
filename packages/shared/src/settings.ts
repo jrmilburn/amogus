@@ -19,7 +19,7 @@ export const DEFAULT_SETTINGS: Readonly<SettingsValues> = {
   emergencyMeetings: 1,
   discussionTime: 30,
   votingTime: 60,
-  playerSpeed: 160,
+  playerSpeed: 200,
   crewVision: 1,
   impostorVision: 1.5,
   tasksShort: 2,

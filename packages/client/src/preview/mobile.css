@@ -1,0 +1,127 @@
+.landscape-prompt {
+  display: none;
+}
+#players .is-disconnected {
+  opacity: 0.55;
+  filter: grayscale(1);
+}
+.map-preview {
+  overscroll-behavior: none;
+}
+.map-canvas,
+.walk-touch-zone,
+.touch-actions {
+  touch-action: none;
+}
+@media (pointer: coarse) {
+  .touch-actions {
+    position: absolute;
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(3, 64px);
+    gap: 8px;
+    align-items: end;
+  }
+  .touch-actions .task-actions,
+  .touch-actions .impostor-actions,
+  .touch-actions .meeting-actions,
+  .touch-actions .sabotage-actions {
+    display: contents;
+  }
+  .touch-actions button {
+    min-width: 64px;
+    min-height: 64px;
+    padding: 6px;
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+  }
+  .touch-actions p {
+    grid-column: 1/-1;
+    position: static;
+    max-width: 100%;
+    width: auto;
+    margin: 0;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+  .touch-actions p:empty {
+    display: none;
+  }
+  .touch-actions small {
+    display: block;
+  }
+  .touch-actions .impostor-actions button {
+    width: 64px;
+  }
+  .task-modal input {
+    font-size: 16px;
+  }
+  .ghost-chat {
+    bottom: auto;
+    top: 150px;
+    left: 12px;
+    width: min(300px, calc(100% - 24px));
+  }
+  .audio-settings {
+    top: 84px;
+  }
+}
+@media (pointer: coarse) and (orientation: portrait) {
+  .landscape-prompt {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: 50%;
+    z-index: 8;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #102029;
+    border: 1px solid #71888e;
+  }
+  .landscape-prompt p {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+  .landscape-prompt button {
+    min-height: 44px;
+  }
+}
+@media (max-width: 380px) {
+  .task-modal {
+    padding: 16px;
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 16px);
+  }
+  .task-modal header {
+    gap: 8px;
+  }
+  .task-modal header h2 {
+    overflow-wrap: anywhere;
+  }
+}
+@media (pointer: coarse) and (max-height: 500px) {
+  .audio-settings {
+    top: 68px;
+  }
+  .touch-actions p {
+    display: none;
+  }
+  .map-controls {
+    display: none;
+  }
+  .ghost-chat {
+    top: 70px;
+    max-height: calc(100dvh - 90px);
+    overflow: auto;
+  }
+  .meeting-intro .ghost-chat {
+    max-height: none;
+  }
+  .map-toolbar h2 {
+    font-size: 1rem;
+  }
+}
