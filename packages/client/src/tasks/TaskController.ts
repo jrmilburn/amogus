@@ -1,5 +1,15 @@
 import { Graphics } from 'pixi.js';
-import { nearestTask, type ServerMessages } from '@mutiny/shared';
+import { type ServerMessages } from '@mutiny/shared';
+import { actionLabel } from '../movement/inputHints';
+import { blocksGameShortcut } from '../movement/keyboard';
+import { letterbox } from '../renderer/Camera';
+import {
+  visibleTaskSpots,
+  taskName,
+  TASK_SPOT_COLOR,
+  TRACKED_SPOT_COLOR,
+  READY_SPOT_COLOR,
+} from './spotter';
 import type { WalkRoom, Walkaround } from '../movement/Walkaround';
 import type { Renderer } from '../renderer/Renderer';
 import type { RoundInfo } from '../round/RoundInfo';
@@ -7,9 +17,9 @@ import type { TaskMinigame } from './TaskMinigame';
 import { createTaskGame } from './minigames/factory';
 import './tasks.css';
 
-/** THESIS: a station within reach becomes one clear action, not a menu.
+/** THESIS: visible task diamonds lead to one clear action at the station.
  * OWN-WORLD: cold station panels, amber Use, mint shared progress, native controls.
- * STORY: find your assigned station, hold, then follow the next room or completed tick.
+ * STORY: find your assigned station, solve its instrument, then follow the next room.
  * FIRST VIEWPORT: tasks top-left, crew bar across top, 64px Use bottom-right.
  * FORM: extend the existing map HUD; focused station-check modal protects movement.
  */
@@ -46,7 +56,7 @@ export class TaskController {
   ) {
     this.root.className = 'task-actions';
     this.root.innerHTML =
-      '<p class="task-feedback" role="status"></p><button type="button" class="task-use" disabled>Use <small>E</small></button>';
+      '<p class="task-feedback" role="status"></p><button type="button" class="task-use" disabled><span>Use</span><small class="action-context">Find a task</small><small class="key-hint">E</small></button>';
     host.append(this.root);
     this.button = this.root.querySelector('button')!;
     this.status = this.root.querySelector('p')!;
@@ -64,10 +74,7 @@ export class TaskController {
           !e.ctrlKey &&
           !e.metaKey &&
           !this.modal &&
-          !(
-            e.target instanceof HTMLElement &&
-            e.target.matches('input,textarea,select,[contenteditable]')
-          )
+          !blocksGameShortcut(e.target)
         ) {
           e.preventDefault();
           this.use();
@@ -126,25 +133,60 @@ export class TaskController {
     if ((!active || !own || own.inVent) && (this.modal || this.pending))
       this.close(true);
     this.root.hidden = !active;
-    let nearby =
+    const spots =
       active && own && !own.inVent && Boolean(this.info.role)
-        ? nearestTask(this.renderer.map, this.info.tasks, own)
-        : undefined;
-    if (nearby?.station && !this.renderer.isPointVisible(nearby.station))
-      nearby = undefined;
+        ? visibleTaskSpots(this.renderer.map, this.info.tasks, own, (point) =>
+            this.renderer.isPointVisible(point),
+          )
+        : [];
+    const nearby = spots.find((spot) => spot.reachable);
     this.candidate = nearby?.task.id;
-    this.button.disabled = !nearby || this.isOpen || this.actionPending;
+    this.button.disabled =
+      !nearby ||
+      this.isOpen ||
+      this.actionPending ||
+      !this.room.connection.isOpen;
     this.button.setAttribute(
       'aria-label',
       nearby
-        ? `Use ${nearby.task.type.replaceAll('-', ' ')} (E)`
+        ? actionLabel(`Use ${taskName(nearby.task.type)}`, 'E')
         : 'Use: move closer to an unfinished task',
     );
+    const context = !this.room.connection.isOpen
+      ? 'Reconnecting'
+      : this.pending
+        ? 'Opening…'
+        : nearby
+          ? taskName(nearby.task.type)
+          : this.info.tasks.length &&
+              this.info.tasks.every((task) => task.completed)
+            ? 'All done'
+            : this.room.state.sabotage?.kind === 'comms'
+              ? 'Find a station'
+              : 'Find a diamond';
+    const label = this.button.querySelector('.action-context')!;
+    if (label.textContent !== context) label.textContent = context;
     this.marker.clear();
-    if (nearby?.station && !this.modal)
-      this.marker
-        .roundRect(nearby.station.x - 40, nearby.station.y - 40, 80, 80, 8)
-        .stroke({ color: 0xe6a65a, width: 5 });
+    if (!this.modal && this.room.state.sabotage?.kind !== 'comms') {
+      const scale = Math.max(0.1, letterbox(this.renderer.app.screen).scale);
+      const r = 10 / scale;
+      for (const spot of spots) {
+        const { x, y } = spot.station;
+        const tracked = spot.task.id === this.info.trackedTaskId;
+        const color =
+          spot === nearby && !this.button.disabled
+            ? READY_SPOT_COLOR
+            : tracked
+              ? TRACKED_SPOT_COLOR
+              : TASK_SPOT_COLOR;
+        this.marker
+          .poly([x, y - r, x + r, y, x, y + r, x - r, y])
+          .fill(0x102029)
+          .stroke({ color, width: 2 / scale });
+        if (spot === nearby || tracked)
+          this.marker.circle(x, y, 3 / scale).fill(color);
+      }
+    }
   }
   private use() {
     if (
@@ -174,7 +216,8 @@ export class TaskController {
     modal.className = 'task-modal';
     modal.setAttribute('aria-labelledby', 'task-modal-title');
     modal.innerHTML =
-      '<header><h2 id="task-modal-title"></h2><button type="button" class="secondary" aria-label="Cancel task">×</button></header><div class="task-game"></div><p class="hint">Esc or × cancels this attempt. Earlier stages stay saved.</p>';
+      '<header><h2 id="task-modal-title"></h2><button type="button" class="secondary" aria-label="Cancel task">Close<span class="key-hint">Esc</span></button></header><div class="task-game"></div><p class="hint">Closing cancels this attempt. Earlier stages stay saved.</p>';
+    modal.classList.add('task-workbench');
     const task = this.info.tasks.find((t) => t.id === this.opened!.taskId)!;
     modal.querySelector('h2')!.textContent =
       `${task.type.replaceAll('-', ' ')} · ${task.step}/${task.steps}`;
@@ -183,7 +226,7 @@ export class TaskController {
       modal.querySelector('h2')!.textContent =
         `Fake task · ${task.type.replaceAll('-', ' ')}`;
       modal.querySelector('.hint')!.textContent =
-        'Cover only. This procedure never advances crew progress. Esc or × closes it.';
+        'Cover only. This procedure never advances crew progress. Choose Close to leave.';
     }
     this.host.append(modal);
     modal.addEventListener('cancel', (event) => {

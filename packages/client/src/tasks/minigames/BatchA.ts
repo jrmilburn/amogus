@@ -40,7 +40,15 @@ export abstract class StationGame implements TaskMinigame {
     this.status = document.createElement('p');
     this.status.className = 'instrument-status';
     this.status.setAttribute('role', 'status');
-    this.root.append(this.status);
+    const guidance = document.createElement('div');
+    guidance.className = 'task-guidance';
+    const instrument = document.createElement('div');
+    instrument.className = 'task-instrument';
+    const instruction = this.root.firstElementChild;
+    if (instruction?.tagName === 'P') guidance.append(instruction);
+    instrument.append(...this.root.childNodes);
+    guidance.append(this.status);
+    this.root.append(guidance, instrument);
     this.interval = setInterval(() => {
       const active = !document.hidden && document.hasFocus();
       this.elapsed = this.clock.tick(performance.now(), active);
@@ -319,7 +327,7 @@ export class GyroTask extends StationGame {
       matchMedia('(prefers-reduced-motion: reduce)').matches ? 3600 : 2400,
     );
     this.root.innerHTML =
-      '<p>Lock the needle inside the green centre band on three separate passes. Tap Lock or press Space/Enter.</p><div class="gyro-instrument" aria-hidden="true"><span class="gyro-band"></span><span class="gyro-needle"></span><span class="gyro-centre">LOCK ZONE</span></div><p class="gyro-locks">Locks: 0 / 3</p><button type="button" class="instrument-primary">Lock needle</button>';
+      '<p>Lock the needle inside the green centre band on three separate passes. <span class="touch-hint">Tap Lock needle.</span><span class="keyboard-hint">Click Lock needle or press Space/Enter.</span></p><div class="gyro-instrument" aria-hidden="true"><span class="gyro-band"></span><span class="gyro-needle"></span><span class="gyro-centre">LOCK ZONE</span></div><p class="gyro-locks">Locks: 0 / 3</p><button type="button" class="instrument-primary">Lock needle</button>';
     this.needle = this.root.querySelector('.gyro-needle')!;
     this.button = this.root.querySelector('button')!;
     this.button.addEventListener(

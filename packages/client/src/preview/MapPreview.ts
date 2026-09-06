@@ -40,7 +40,7 @@ export async function openMapPreview(
   const dialog = document.createElement('dialog');
   dialog.className = 'map-preview';
   dialog.setAttribute('aria-label', 'Explore The Hollow');
-  dialog.innerHTML = `<div class="map-canvas"></div><header class="map-toolbar"><div><h2>The Hollow</h2><p class="map-location" role="status">Commons</p></div><button class="map-close secondary" type="button">Back</button></header><div class="map-loading" role="status"><h3>Opening the station</h3><p>Preparing the map and its fixtures…</p><progress max="1" value="0" aria-label="Map loading progress"></progress><button class="map-retry" type="button" hidden>Try again</button></div><footer class="map-controls"><div class="map-room-field"><label for="map-room-select">Go to room</label><select id="map-room-select"></select></div><div class="map-instructions"><strong>Map preview</strong><p>Drag or use arrow keys to look around.</p><p class="portrait-hint">Turn your phone for a wider view.</p></div><button class="map-home secondary" type="button">Find Commons</button></footer>`;
+  dialog.innerHTML = `<div class="map-canvas"></div><header class="map-toolbar"><div><h2>The Hollow</h2><p class="map-location" role="status">Commons</p></div><button class="map-close secondary" type="button">Back</button></header><div class="map-loading" role="status"><h3>Opening the station</h3><p>Preparing the map and its fixtures…</p><progress max="1" value="0" aria-label="Map loading progress"></progress><button class="map-retry" type="button" hidden>Try again</button></div><footer class="map-controls"><div class="map-room-field"><label for="map-room-select">Go to room</label><select id="map-room-select"></select></div><div class="map-instructions"><strong>Map preview</strong><p>Drag to look around.<span class="keyboard-hint"> You can also use arrow keys.</span></p><p class="portrait-hint">Turn your phone for a wider view.</p></div><button class="map-home secondary" type="button">Find Commons</button></footer>`;
   if (boarding) {
     dialog.classList.add('is-boarding');
     dialog.querySelector('h2')!.textContent = 'Boarding room';
@@ -62,7 +62,7 @@ export async function openMapPreview(
     dialog.querySelector('.map-instructions strong')!.textContent =
       'Character rehearsal';
     dialog.querySelector('.map-instructions p')!.textContent =
-      'Twelve colours. Drag or use arrows to inspect.';
+      'Twelve colours. Drag to inspect.';
     dialog.querySelector('.map-home')!.textContent = 'Replay animation';
     const labels = {
       idle: 'Idle',
@@ -130,7 +130,10 @@ export async function openMapPreview(
   let boardingLobby: BoardingLobby | undefined;
   const minimap = rehearsing || boarding ? undefined : new Minimap(dialog, map);
   const roundOverlay = room
-    ? new RoundOverlay(dialog, room, knowledge, map, (id) => minimap?.track(id))
+    ? new RoundOverlay(dialog, room, knowledge, map, (id) => {
+        knowledge.trackedTaskId = id;
+        minimap?.track(id);
+      })
     : undefined;
   const zone = document.createElement('div');
   if (room) {
@@ -144,9 +147,9 @@ export async function openMapPreview(
     dialog.querySelector<HTMLElement>('.map-home')!.hidden = true;
     dialog.querySelector('.map-instructions strong')!.textContent =
       'Walk with your crew';
-    dialog.querySelector('.map-instructions p')!.textContent = boarding
-      ? 'WASD or arrow keys to move. Room settings opens name, colour and game options.'
-      : 'WASD or arrow keys to move. Back returns to the lobby.';
+    dialog.querySelector('.map-instructions p')!.innerHTML = boarding
+      ? '<span class="keyboard-hint">WASD or arrow keys to move.</span><span class="touch-hint">Drag the left side to move.</span> Room options opens name, colour and settings.'
+      : '<span class="keyboard-hint">WASD or arrow keys to move.</span><span class="touch-hint">Drag the left side to move.</span> Room options returns to the lobby.';
     dialog.querySelector('.portrait-hint')!.textContent =
       'Drag the left side to walk. Turn your phone for a wider view.';
     zone.className = 'walk-touch-zone';
@@ -398,6 +401,7 @@ export async function openMapPreview(
               room.state.sabotage?.kind !== 'comms'
               ? knowledge.tasks
               : noTasks,
+            knowledge.trackedTaskId,
           );
           walk.frame(seconds, location);
           minimap?.update(

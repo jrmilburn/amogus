@@ -1,4 +1,6 @@
 import { Graphics } from 'pixi.js';
+import { actionLabel } from '../movement/inputHints';
+import { blocksGameShortcut } from '../movement/keyboard';
 import {
   repairPointMatches,
   type ClientMessages,
@@ -43,7 +45,7 @@ export class SabotageController {
   ) {
     this.root.className = 'sabotage-actions';
     this.root.innerHTML =
-      '<p role="status"></p><button type="button" class="secondary">Repair <small>R</small></button><button type="button" class="sabotage-trigger">Sabotage <small>B</small></button>';
+      '<p role="status"></p><button type="button" class="secondary repair-trigger">Repair <small class="key-hint">R</small></button><button type="button" class="sabotage-trigger">Sabotage <small class="key-hint">B</small></button>';
     this.feedback = this.root.querySelector('p')!;
     [this.repairButton, this.sabotageButton] = [
       ...this.root.querySelectorAll('button'),
@@ -67,10 +69,7 @@ export class SabotageController {
           e.metaKey ||
           this.modal ||
           this.pending ||
-          (e.target instanceof HTMLElement &&
-            e.target.closest(
-              'input,textarea,select,[contenteditable],.task-modal',
-            ))
+          blocksGameShortcut(e.target)
         )
           return;
         if (e.code === 'KeyB' || e.code === 'KeyR') {
@@ -151,7 +150,7 @@ export class SabotageController {
     this.repairButton.disabled =
       !candidate || this.tasks.isOpen || this.tasks.actionPending;
     this.repairButton.title = candidate
-      ? 'Open this repair panel (R)'
+      ? actionLabel('Open this repair panel', 'R')
       : 'Move close to a highlighted repair panel';
     this.renderer.setVisionMultiplier(fault?.kind === 'lights' ? 0.25 : 1);
     this.marker.clear();

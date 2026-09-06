@@ -1,4 +1,5 @@
 import { Graphics } from 'pixi.js';
+import { blocksGameShortcut } from '../movement/keyboard';
 import { confirmAction } from '../lobby/confirmAction';
 import {
   COLORS,
@@ -44,7 +45,7 @@ export class MeetingController {
   ) {
     this.root.className = 'meeting-actions';
     this.root.innerHTML =
-      '<p role="status"></p><button type="button" class="report-trigger">Report <small>F</small></button><button type="button" class="emergency-trigger">Emergency <small>C</small></button>';
+      '<p role="status"></p><button type="button" class="report-trigger">Report <small class="key-hint">F</small></button><button type="button" class="emergency-trigger">Meeting <small class="action-state"></small><small class="key-hint">C</small></button>';
     this.feedback = this.root.querySelector('p')!;
     [this.report, this.emergency] = [
       ...this.root.querySelectorAll('button'),
@@ -63,10 +64,7 @@ export class MeetingController {
           e.metaKey ||
           tasks.isOpen ||
           this.modal ||
-          (e.target instanceof HTMLElement &&
-            e.target.closest(
-              'input,textarea,select,[contenteditable],dialog.task-modal',
-            ))
+          blocksGameShortcut(e.target)
         )
           return;
         if (e.code === 'KeyF' || e.code === 'KeyC') {
@@ -118,9 +116,9 @@ export class MeetingController {
       this.tasks.isOpen ||
       this.tasks.actionPending;
     this.emergency.title = reason ?? 'Call everyone back to Commons';
-    this.emergency.querySelector('small')!.textContent = own
-      ? `C · ${Math.max(0, state.settings.emergencyMeetings - own.emergenciesUsed)} left`
-      : 'C';
+    this.emergency.querySelector('.action-state')!.textContent = own
+      ? `${Math.max(0, state.settings.emergencyMeetings - own.emergenciesUsed)} left`
+      : '';
     this.feedback.hidden = !active;
     if (!this.pending && !this.feedback.dataset.error) {
       const message = close ? (reason ?? 'Call everyone back to Commons.') : '';

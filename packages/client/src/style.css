@@ -15,6 +15,16 @@
 [hidden] {
   display: none !important;
 }
+.touch-hint {
+  display: none;
+}
+html[data-input='touch'] .key-hint,
+html[data-input='touch'] .keyboard-hint {
+  display: none !important;
+}
+html[data-input='touch'] .touch-hint {
+  display: inline;
+}
 body {
   margin: 0;
   min-width: 320px;

@@ -9,6 +9,7 @@ export class RoundInfo implements PrivateAppearance {
   tasks: TaskAssignment[] = [];
   fake = false;
   roundId = 0;
+  trackedTaskId?: string;
   ghostMessages: ServerMessages['ghostHistory']['messages'] = [];
   killReadyAt = Infinity;
   ventId: string | null = null;
@@ -54,9 +55,16 @@ export class RoundInfo implements PrivateAppearance {
     if (this.roundId !== roundId) this.clear();
     this.roundId = roundId;
     this.tasks = payload.tasks.map((task) => ({ ...task }));
+    if (
+      !this.tasks.some(
+        (task) => task.id === this.trackedTaskId && !task.completed,
+      )
+    )
+      this.trackedTaskId = undefined;
     this.fake = payload.fake;
   }
   clear() {
+    this.trackedTaskId = undefined;
     this.ghostMessages = [];
     this.killReadyAt = Infinity;
     this.ventId = null;

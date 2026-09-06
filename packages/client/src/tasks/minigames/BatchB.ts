@@ -210,7 +210,7 @@ export class AccessCodeTask extends StationGame {
   private showing = false;
   protected build() {
     this.root.innerHTML =
-      '<p>Reveal a five-digit code for two seconds, then enter it on the keypad. Keyboard: digits, Backspace, Enter to submit; Space activates a focused key. Reveal again to retry.</p><output class="access-display" aria-live="polite" aria-label="Memory code">Ready</output><button type="button" class="instrument-primary access-reveal">Reveal code</button><p class="access-input" aria-live="polite" aria-label="Entered digits">_ _ _ _ _</p><div class="access-keypad" aria-label="Code keypad"></div>';
+      '<p>Reveal a five-digit code for two seconds, then enter it on the keypad and choose Submit. Reveal again to retry.<span class="keyboard-hint"> Keyboard: digits, Backspace and Enter.</span></p><output class="access-display" aria-live="polite" aria-label="Memory code">Ready</output><button type="button" class="instrument-primary access-reveal">Reveal code</button><p class="access-input" aria-live="polite" aria-label="Entered digits">_ _ _ _ _</p><div class="access-keypad" aria-label="Code keypad"></div>';
     this.display = this.root.querySelector('.access-display')!;
     this.input = this.root.querySelector('.access-input')!;
     this.keypad = this.root.querySelector('.access-keypad')!;
@@ -231,7 +231,7 @@ export class AccessCodeTask extends StationGame {
     ]) {
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = key;
+      button.textContent = key === 'Enter' ? 'Submit' : key;
       button.disabled = true;
       this.keypad.append(button);
       button.addEventListener('click', () => this.press(key), options);
@@ -307,7 +307,7 @@ export class AccessCodeTask extends StationGame {
       this.keypad.querySelectorAll('button').forEach((b) => {
         b.disabled = false;
       });
-      this.status.textContent = 'Enter the five digits, then choose Enter.';
+      this.status.textContent = 'Enter the five digits, then choose Submit.';
       this.keypad.querySelector('button')?.focus();
     }
   }

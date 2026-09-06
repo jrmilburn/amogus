@@ -14,6 +14,8 @@ export class MobileUX {
     [];
   constructor(host: HTMLElement) {
     this.cluster.className = 'touch-actions';
+    this.cluster.setAttribute('role', 'group');
+    this.cluster.setAttribute('aria-label', 'Game actions');
     for (const selector of [
       '.task-actions',
       '.impostor-actions',

@@ -12,6 +12,7 @@ import {
 import type { Renderer } from '../renderer/Renderer';
 import { letterbox } from '../renderer/Camera';
 import { MovementInput } from './Input';
+import { inputInstruction } from './inputHints';
 import { Interpolation, Prediction } from './prediction';
 import { CharacterView } from '../characters/CharacterView';
 import { visionRadius } from '../renderer/visibility';
@@ -77,7 +78,7 @@ export class Walkaround {
     renderer.camera.follow(this.target, true);
     renderer.app.canvas.setAttribute(
       'aria-label',
-      `${renderer.map.name}. Walk with WASD, arrow keys, or drag the left side of the screen.`,
+      `${renderer.map.name}. ${inputInstruction('Drag the left side to move.', 'Move with WASD or arrow keys.')}`,
     );
     room.onStateChange(this.snapshot);
     this.snapshot();
@@ -194,6 +195,9 @@ export class Walkaround {
   }
 
   frame(seconds: number, location: HTMLElement) {
+    const controlLabel = `${this.renderer.map.name}. ${inputInstruction('Drag the left side to move.', 'Move with WASD or arrow keys.')}`;
+    if (this.renderer.app.canvas.getAttribute('aria-label') !== controlLabel)
+      this.renderer.app.canvas.setAttribute('aria-label', controlLabel);
     const own = this.room.state.players.get(this.room.sessionId);
     if (!own || this.stopped) return;
     const enabled =

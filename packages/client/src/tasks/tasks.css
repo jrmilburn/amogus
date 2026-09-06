@@ -9,10 +9,14 @@
   max-width: calc(100% - 48px);
 }
 .task-use {
-  min-width: 80px;
+  min-width: 112px;
   min-height: 64px;
   background: #e6a65a;
   color: #182124;
+}
+.task-use .action-context {
+  font-size: 0.75rem;
+  max-width: 16ch;
 }
 .task-use small {
   display: block;
@@ -55,6 +59,82 @@
 .task-modal header button {
   min-width: 44px;
   min-height: 44px;
+}
+.task-workbench > header {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  padding-block: 12px;
+  background: #102029;
+  align-items: center;
+}
+.task-workbench > header h2 {
+  margin-bottom: 0;
+}
+.task-workbench > header .key-hint {
+  display: block;
+  font-size: 0.75rem;
+}
+.task-workbench .task-guidance > p:first-child {
+  margin-top: 0;
+}
+.task-workbench .task-guidance .instrument-status:empty {
+  display: none;
+}
+.task-workbench .task-instrument {
+  min-width: 0;
+}
+@media (max-height: 500px) and (min-width: 600px) {
+  .task-modal.task-workbench {
+    width: min(880px, calc(100vw - 24px));
+    padding: 12px;
+    max-height: calc(100dvh - 16px);
+  }
+  .task-workbench > header {
+    padding-block: 4px 12px;
+  }
+  .task-workbench .station-game {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.7fr) minmax(0, 1.6fr);
+    gap: 20px;
+    align-items: start;
+  }
+  .task-workbench .task-guidance {
+    position: sticky;
+    top: 80px;
+    font-size: 0.875rem;
+  }
+  .task-workbench .instrument-status {
+    min-height: 0;
+  }
+  .task-workbench .sample-board {
+    gap: 20px;
+  }
+  .task-workbench .sample-board .sources,
+  .task-workbench .sample-board .destinations {
+    width: 46%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .task-workbench .instrument-primary {
+    margin-top: 8px;
+    min-height: 48px;
+  }
+  .task-workbench .task-instrument:has(.access-keypad) {
+    display: grid;
+    grid-template-columns: minmax(100px, 0.8fr) minmax(160px, 1.2fr);
+    gap: 8px 16px;
+    align-items: start;
+  }
+  .task-workbench .access-keypad {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+  .task-workbench .access-reveal {
+    margin: 0;
+  }
+  .task-workbench .access-input {
+    margin: 0;
+  }
 }
 .task-hold {
   width: 100%;
