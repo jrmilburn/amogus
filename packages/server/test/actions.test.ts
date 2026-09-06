@@ -6,6 +6,8 @@ import {
   DEFAULT_SETTINGS,
   taskStation,
   clearActionPath,
+  KILL_RADIUS,
+  VENT_USE_RADIUS,
 } from '@mutiny/shared';
 import { MapDefSchema } from '@mutiny/shared/maps';
 import mapData from '@mutiny/shared/maps/the-hollow.json' with { type: 'json' };
@@ -82,9 +84,9 @@ test('kill validates role, phase, life, round, cooldown, distance and walls befo
   state.phase = 'meeting';
   assert.throws(() => actions.kill(imp.id, request, 31000));
   state.phase = 'playing';
-  victim.x = imp.x + 61;
+  victim.x = imp.x + KILL_RADIUS + 1;
   assert.throws(() => actions.kill(imp.id, request, 31000));
-  victim.x = imp.x + 60;
+  victim.x = imp.x + KILL_RADIUS;
   map.walls.push({ x: imp.x + 29, y: imp.y - 50, width: 2, height: 100 });
   assert.throws(() => actions.kill(imp.id, request, 31000));
   map.walls.pop();
@@ -169,6 +171,24 @@ test('vents validate proximity, links, exit location, life and role; task sessio
   actions.clear();
   assert.equal(actions.vents.size, 0);
   assert.equal(state.taskProgress, 0);
+});
+
+test('expanded vent reach accepts the boundary but still rejects walls and excess distance', () => {
+  const { map, actions, imp } = fixture();
+  const vent = map.vents[0]!;
+  // Isolate reach from the station's decorative placement and wall layout.
+  map.walls = [];
+  Object.assign(vent, { x: 1000, y: 1000 });
+  Object.assign(imp, { x: vent.x + VENT_USE_RADIUS + 1, y: vent.y });
+  const request = { action: 'enter', ventId: vent.id, roundId: 1 };
+  assert.throws(() => actions.vent(imp.id, request), /160px/);
+  imp.x = vent.x + VENT_USE_RADIUS;
+  map.walls.push({ x: vent.x + 40, y: vent.y - 20, width: 2, height: 40 });
+  assert.throws(() => actions.vent(imp.id, request));
+  map.walls.pop();
+  actions.vent(imp.id, request);
+  assert.equal(imp.inVent, true);
+  assert.equal(imp.x, vent.x);
 });
 
 test('action wall test covers parallel rays, corner touching and unobstructed endpoints', () => {

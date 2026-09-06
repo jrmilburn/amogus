@@ -1,12 +1,16 @@
 import type { MapDef } from '@mutiny/shared/maps';
 import type { WalkRoom } from '../movement/Walkaround';
 import type { RoundInfo } from './RoundInfo';
+import type { Renderer } from '../renderer/Renderer';
+import type { CharacterAssets } from '../characters/assets';
+import { engineerPortrait } from '../characters/portrait';
 import './round.css';
 
-/** Existing station UI extended with a private, three-second role announcement.
- * Large role text leads; teammate names and assignments follow. The map returns
- * when the server enters play, leaving a compact personal assignment disclosure.
- * Mint crew / coral impostor accents inherit the established station palette.
+/** THESIS: a private assignment unseals around your own engineer, then play begins.
+ * OWN-WORLD: original numbered engineer art, mint crew and coral impostor accents.
+ * STORY: identify your role and allies privately, then enter on the server countdown.
+ * FIRST VIEWPORT: portrait beside role/purpose, full-width countdown below.
+ * FORM: existing role overlay extended with a bounded 700ms unseal; no new world.
  */
 export class RoundOverlay {
   private root = document.createElement('div');
@@ -17,6 +21,12 @@ export class RoundOverlay {
   private focusedReveal = false;
   private inertElements = new Map<HTMLElement, boolean>();
   private announced = '';
+  private portraitKey = '';
+  private presentation?: { renderer: Renderer; assets: CharacterAssets };
+  setPresentation(renderer: Renderer, assets: CharacterAssets) {
+    this.presentation = { renderer, assets };
+    this.update();
+  }
   constructor(
     host: HTMLElement,
     private readonly room: WalkRoom,
@@ -25,7 +35,7 @@ export class RoundOverlay {
   ) {
     this.root.className = 'round-ui';
     this.root.innerHTML =
-      '<section class="round-reveal" aria-labelledby="role-title" hidden><div class="role-card"><p class="role-kicker">Your role</p><h2 id="role-title">Receiving your role</h2><p class="role-purpose"></p><p class="role-team"></p><p class="role-countdown" role="status"></p></div></section><details class="round-assignment" hidden><summary>Your assignment</summary><p class="assignment-team"></p><ul></ul><p class="hint">Explore the station. Task interactions and impostor actions are coming in later builds.</p></details>';
+      '<section class="round-reveal" aria-labelledby="role-title" hidden><div class="role-card"><div class="role-portrait" aria-hidden="true"></div><div class="role-copy"><p class="role-kicker">Private assignment</p><h2 id="role-title">Receiving your role</h2><p class="role-purpose"></p><p class="role-team"></p></div><p class="role-countdown" role="status"></p></div></section><details class="round-assignment" hidden><summary>Your assignment</summary><p class="assignment-team"></p><ul></ul><p class="hint">Your assignment will appear when the round starts.</p></details>';
     host.append(this.root);
     const total = document.createElement('label');
     total.className = 'crew-progress';
@@ -49,6 +59,23 @@ export class RoundOverlay {
     const active = state.phase === 'starting' || state.phase === 'playing';
     const known =
       active && this.info.roundId === state.roundId && Boolean(this.info.role);
+    const own = state.players.get(this.room.sessionId);
+    const portraitKey =
+      known && own ? `${state.roundId}:${own.color}:${this.info.role}` : '';
+    if (this.presentation && portraitKey !== this.portraitKey) {
+      this.portraitKey = portraitKey;
+      const portrait = this.root.querySelector('.role-portrait')!;
+      portrait.replaceChildren();
+      if (known && own) {
+        const canvas = engineerPortrait(
+          this.presentation.renderer,
+          this.presentation.assets,
+          own.color,
+        );
+        if (canvas) portrait.append(canvas);
+      }
+    }
+    this.reveal.classList.toggle('is-known', Boolean(known));
     this.reveal.hidden = state.phase !== 'starting';
     this.assignment.hidden =
       state.phase !== 'playing' || state.sabotage?.kind === 'comms';

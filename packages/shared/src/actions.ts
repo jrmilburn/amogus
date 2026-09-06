@@ -1,7 +1,7 @@
 import type { Point, Rect } from './maps/geometry.js';
 
-export const KILL_RADIUS = 60;
-export const VENT_USE_RADIUS = 80;
+export const KILL_RADIUS = 120;
+export const VENT_USE_RADIUS = 160;
 
 /** Segment/slab test, including wall edges: actions cannot pass through walls. */
 export function clearActionPath(a: Point, b: Point, walls: readonly Rect[]) {

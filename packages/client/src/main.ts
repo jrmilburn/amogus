@@ -174,6 +174,7 @@ async function enter(joining: boolean, reconnectToken?: string) {
     knowledge = new RoundInfo();
     openedRound = 0;
     const joinedKnowledge = knowledge;
+    let initialMapOpened = false;
     joined.onMessage<ServerMessages['roleReveal']>(
       SERVER_MESSAGES.roleReveal,
       (payload) => {
@@ -303,6 +304,10 @@ async function enter(joining: boolean, reconnectToken?: string) {
       }
       if (room === joined) {
         render();
+        if (!initialMapOpened && joined.state.players.has(joined.sessionId)) {
+          initialMapOpened = true;
+          void showMap();
+        }
         if (
           joined.state.phase !== 'lobby' &&
           openedRound !== joined.state.roundId
@@ -345,6 +350,10 @@ async function enter(joining: boolean, reconnectToken?: string) {
     announce('Connected. Invite your friends to join.');
     render();
     element('#copy-link').focus();
+    if (!initialMapOpened && joined.state.players.has(joined.sessionId)) {
+      initialMapOpened = true;
+      void showMap();
+    }
   } catch (error) {
     if (reconnectToken) {
       const url = new URL(location.href);
@@ -466,7 +475,7 @@ function render() {
         ? 'Open the station to discuss, vote, or see the result. The round resumes automatically after the tally.'
         : 'Enter the station to complete tasks, watch for impostors, and repair sabotaged systems.';
   element<HTMLButtonElement>('#lobby [data-open-map]').textContent = inLobby
-    ? 'Walk around'
+    ? 'Enter waiting room'
     : 'Enter station';
   element('#cancel-start').hidden = !own.isHost;
   element('#wait-host').hidden = own.isHost;

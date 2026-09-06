@@ -1,4 +1,6 @@
 import mapData from '@mutiny/shared/maps/the-hollow.json';
+import { BOARDING_MAP } from '@mutiny/shared';
+import { BoardingLobby } from '../lobby/BoardingLobby';
 import { MapDefSchema } from '@mutiny/shared/maps';
 import { loadStationAssets } from '../renderer/assets';
 import { Renderer } from '../renderer/Renderer';
@@ -29,7 +31,8 @@ export async function openMapPreview(
   room?: WalkRoom,
   knowledge = new RoundInfo(),
 ) {
-  const map = MapDefSchema.parse(mapData);
+  const boarding = room?.state.phase === 'lobby';
+  const map = boarding ? BOARDING_MAP : MapDefSchema.parse(mapData);
   const rehearsing =
     !room &&
     new URL(window.location.href).searchParams.get('view') === 'characters';
@@ -37,6 +40,11 @@ export async function openMapPreview(
   dialog.className = 'map-preview';
   dialog.setAttribute('aria-label', 'Explore The Hollow');
   dialog.innerHTML = `<div class="map-canvas"></div><header class="map-toolbar"><div><h2>The Hollow</h2><p class="map-location" role="status">Commons</p></div><button class="map-close secondary" type="button">Back</button></header><div class="map-loading" role="status"><h3>Opening the station</h3><p>Preparing the map and its fixtures…</p><progress max="1" value="0" aria-label="Map loading progress"></progress><button class="map-retry" type="button" hidden>Try again</button></div><footer class="map-controls"><div class="map-room-field"><label for="map-room-select">Go to room</label><select id="map-room-select"></select></div><div class="map-instructions"><strong>Map preview</strong><p>Drag or use arrow keys to look around.</p><p class="portrait-hint">Turn your phone for a wider view.</p></div><button class="map-home secondary" type="button">Find Commons</button></footer>`;
+  if (boarding) {
+    dialog.classList.add('is-boarding');
+    dialog.querySelector('h2')!.textContent = 'Boarding room';
+    dialog.querySelector('.map-close')!.textContent = 'Room settings';
+  }
   document.body.append(dialog);
   const select = dialog.querySelector<HTMLSelectElement>('select')!;
   for (const room of map.rooms) {
@@ -112,20 +120,25 @@ export async function openMapPreview(
   let polish: GamePolish | undefined;
   let mobile: MobileUX | undefined;
   let rehearsal: CharacterRehearsal | undefined;
-  const minimap = rehearsing ? undefined : new Minimap(dialog, map);
+  let boardingLobby: BoardingLobby | undefined;
+  const minimap = rehearsing || boarding ? undefined : new Minimap(dialog, map);
   const roundOverlay = room
     ? new RoundOverlay(dialog, room, knowledge, map)
     : undefined;
   const zone = document.createElement('div');
   if (room) {
     dialog.classList.add('is-walkaround');
-    dialog.setAttribute('aria-label', 'Walk around The Hollow');
+    dialog.setAttribute(
+      'aria-label',
+      boarding ? 'Waiting lobby · Boarding room' : 'Walk around The Hollow',
+    );
     dialog.querySelector<HTMLElement>('.map-room-field')!.hidden = true;
     dialog.querySelector<HTMLElement>('.map-home')!.hidden = true;
     dialog.querySelector('.map-instructions strong')!.textContent =
       'Walk with your crew';
-    dialog.querySelector('.map-instructions p')!.textContent =
-      'WASD or arrow keys to move. Back returns to the lobby.';
+    dialog.querySelector('.map-instructions p')!.textContent = boarding
+      ? 'WASD or arrow keys to move. Room settings opens name, colour and game options.'
+      : 'WASD or arrow keys to move. Back returns to the lobby.';
     dialog.querySelector('.portrait-hint')!.textContent =
       'Drag the left side to walk. Turn your phone for a wider view.';
     zone.className = 'walk-touch-zone';
@@ -133,6 +146,12 @@ export async function openMapPreview(
     zone.hidden = true;
     dialog.append(zone);
     room.onLeave(close);
+    room.onStateChange(changeScene);
+  }
+  function changeScene() {
+    if (closed || !room || (room.state.phase === 'lobby') === boarding) return;
+    close();
+    void openMapPreview(undefined, room, knowledge);
   }
   let dragging: { id: number; x: number; y: number } | undefined;
   function close() {
@@ -142,6 +161,7 @@ export async function openMapPreview(
     room?.onDrop.remove(dropped);
     room?.onReconnect.remove(reconnected);
     mobile?.destroy();
+    boardingLobby?.destroy();
     afterlife?.destroy();
     gameAudio?.destroy();
     polish?.destroy();
@@ -153,6 +173,7 @@ export async function openMapPreview(
     walk?.destroy();
     roundOverlay?.destroy();
     room?.onLeave.remove(close);
+    room?.onStateChange.remove(changeScene);
     renderer?.destroy();
     dialog.close();
     dialog.remove();
@@ -320,6 +341,7 @@ export async function openMapPreview(
       await next.init(host);
       if (closed) return;
       if (room) {
+        roundOverlay?.setPresentation(next, characters!);
         walk = new Walkaround(room, next, dialog, zone, characters!, knowledge);
         tasks = new TaskController(dialog, room, knowledge, next, walk);
         actions = new ImpostorController(
@@ -350,6 +372,7 @@ export async function openMapPreview(
         gameAudio = new GameAudio(dialog, room, next);
         polish = new GamePolish(dialog, room, next);
         mobile = new MobileUX(dialog);
+        if (boarding) boardingLobby = new BoardingLobby(dialog, room);
       }
       next.camera.follow(target, true);
       if (rehearsing) {
@@ -372,6 +395,7 @@ export async function openMapPreview(
           afterlife?.frame();
           gameAudio?.frame();
           polish?.frame();
+          boardingLobby?.frame();
           return;
         }
         const dx =
@@ -400,6 +424,8 @@ export async function openMapPreview(
       loading.hidden = true;
       host.dataset.ready = 'true';
     } catch (error) {
+      boardingLobby?.destroy();
+      boardingLobby = undefined;
       mobile?.destroy();
       mobile = undefined;
       afterlife?.destroy();

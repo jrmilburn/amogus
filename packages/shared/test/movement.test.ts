@@ -107,7 +107,7 @@ test('the actual 24px movement body completes The Hollow outer circuit', async (
     );
   }
   assert.ok(
-    Math.abs(ticks / 20 - 153) < 1,
-    'the compact map completes the circuit in about 2m33s',
+    Math.abs(ticks / 20 - 76.5) < 1,
+    'the compact map completes the circuit in about 77s at the 400px/s default',
   );
 });

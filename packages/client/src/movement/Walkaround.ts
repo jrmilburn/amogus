@@ -77,7 +77,7 @@ export class Walkaround {
     renderer.camera.follow(this.target, true);
     renderer.app.canvas.setAttribute(
       'aria-label',
-      'The Hollow. Walk with WASD, arrow keys, or drag the left side of the screen.',
+      `${renderer.map.name}. Walk with WASD, arrow keys, or drag the left side of the screen.`,
     );
     room.onStateChange(this.snapshot);
     this.snapshot();

@@ -6,6 +6,7 @@ import { Client, type Room } from '@colyseus/sdk';
 import { matchMaker } from '@colyseus/core';
 import {
   COLORS,
+  BOARDING_MAP,
   GAME_ROOM,
   GameState,
   MeetingState,
@@ -89,6 +90,10 @@ test(
       );
       assert.equal(host.state.players.get(host.sessionId)?.name, 'Captain');
       assert.equal(host.state.players.get(host.sessionId)?.isHost, true);
+      assert.equal(
+        host.state.players.get(host.sessionId)?.x,
+        BOARDING_MAP.spawnPoints[0]!.x,
+      );
       const peer = await remember(
         await sdk.joinById<GameState>(
           host.roomId,
@@ -147,7 +152,7 @@ test(
         'invalidPayload',
       );
       assert.equal(host.state.settings.killCooldown, 30);
-      assert.equal(host.state.settings.playerSpeed, 200);
+      assert.equal(host.state.settings.playerSpeed, 400);
       peer.send(CLIENT_MESSAGES.updateProfile, {
         name: '  Jo<>  ',
         color: 'cyan',
@@ -199,6 +204,10 @@ test(
             .every((client) => client.state.phase === 'starting'),
         'start sync',
       );
+      assert.ok(
+        host.state.players.get(host.sessionId)!.x > BOARDING_MAP.size.width,
+        'starting moves the crew from boarding into The Hollow',
+      );
       await assert.rejects(
         sdk.joinById(host.roomId, { name: 'Late join', color: 'olive' }),
       );
@@ -211,6 +220,16 @@ test(
       await rejected(peer, CLIENT_MESSAGES.cancelStart, {}, 'hostOnly');
       host.send(CLIENT_MESSAGES.cancelStart, {});
       await until(() => peer.state.phase === 'lobby', 'return to lobby');
+      for (const player of peer.state.players.values()) {
+        assert.ok(
+          BOARDING_MAP.spawnPoints.some(
+            (p) => p.x === player.x && p.y === player.y,
+          ),
+          'reset returns every player to a boarding spawn',
+        );
+        assert.equal(player.alive, true);
+        assert.equal(player.inVent, false);
+      }
 
       for (let i = 4; i < 10; i++) {
         await remember(

@@ -19,7 +19,7 @@ export const DEFAULT_SETTINGS: Readonly<SettingsValues> = {
   emergencyMeetings: 1,
   discussionTime: 30,
   votingTime: 60,
-  playerSpeed: 200,
+  playerSpeed: 400,
   crewVision: 1,
   impostorVision: 1.5,
   tasksShort: 2,
@@ -78,7 +78,7 @@ export const SETTINGS_FIELDS = {
     hint: 'Higher values let everyone move faster.',
     kind: 'number',
     min: 80,
-    max: 240,
+    max: 800,
     step: 10,
   },
   crewVision: {
