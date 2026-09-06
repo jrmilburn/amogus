@@ -27,6 +27,17 @@ const prop = (
  * FORM: extend the existing orthographic atlas; no new identity or decorative UI chrome.
  */
 export const ROOM_THEMES: Record<string, Theme> = {
+  boarding: {
+    tint: 0xc6d0cc,
+    accent: 0xe6a65a,
+    purpose: 'SUIT UP / WAIT FOR YOUR CREW',
+    fixtures: [
+      prop('suits', 0.25, 0.14, 300, 150),
+      prop('suits', 0.75, 0.14, 300, 150),
+      prop('bench', 0.16, 0.77, 230, 145),
+      prop('bench', 0.84, 0.77, 230, 145),
+    ],
+  },
   dock: {
     tint: 0xc6d0cc,
     accent: 0xc4b58a,

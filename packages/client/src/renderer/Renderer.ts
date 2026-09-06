@@ -380,7 +380,8 @@ export class Renderer {
       const fixture = this.sprite('objects', 'console', camera, 72);
       fixture.rotation = camera.facing;
     }
-    this.sprite('objects', 'emergency', this.map.emergencyButton, 220);
+    if (this.map.id !== 'boarding')
+      this.sprite('objects', 'emergency', this.map.emergencyButton, 220);
     this.light(this.map.emergencyButton, 600);
   }
   private update(seconds: number) {

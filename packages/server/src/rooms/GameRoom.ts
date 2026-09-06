@@ -1,5 +1,6 @@
 import { Room, ServerError, CloseCode, type Client } from '@colyseus/core';
 import {
+  BOARDING_MAP,
   COLORS,
   MAX_PLAYERS,
   TICK_RATE,
@@ -67,6 +68,7 @@ export class GameRoom extends Room<{ state: GameState }> {
     this.state,
     map,
     (id) => this.tasks.active.has(id) || this.sabotage.sessions.has(id),
+    () => (this.state.phase === 'lobby' ? BOARDING_MAP : map),
   );
   private revealTimer?: { clear(): void };
   private ghostMessages: ServerMessages['ghostHistory']['messages'] = [];
@@ -517,11 +519,11 @@ export class GameRoom extends Room<{ state: GameState }> {
     player.color = color;
     player.isHost = this.state.players.size === 0;
     const spawn =
-      map.spawnPoints.find((point) =>
+      BOARDING_MAP.spawnPoints.find((point) =>
         [...this.state.players.values()].every(
           (other) => Math.hypot(other.x - point.x, other.y - point.y) >= 48,
         ),
-      ) ?? map.spawnPoints[0]!;
+      ) ?? BOARDING_MAP.spawnPoints[0]!;
     player.x = spawn.x;
     player.y = spawn.y;
     this.state.players.set(player.id, player);
@@ -660,8 +662,10 @@ export class GameRoom extends Room<{ state: GameState }> {
     this.state.winner = undefined;
     this.state.meeting = undefined;
     this.state.sabotage = undefined;
+    let boardingIndex = 0;
     this.state.players.forEach((player) => {
       player.ready = false;
+      Object.assign(player, BOARDING_MAP.spawnPoints[boardingIndex++]!);
       player.tasksDone = 0;
       player.tasksTotal = 0;
       player.alive = true;

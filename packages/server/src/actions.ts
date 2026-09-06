@@ -70,7 +70,7 @@ export class ImpostorActions {
       !clearActionPath(player, victim, collisionMap(this.map, this.state).walls)
     )
       throw new Error(
-        'Move within 60px of a crew member with no wall between you.',
+        `Move within ${KILL_RADIUS}px of a crew member with no wall between you.`,
       );
     const body = new Body();
     Object.assign(body, {
@@ -123,7 +123,7 @@ export class ImpostorActions {
           collisionMap(this.map, this.state).walls,
         )
       )
-        throw new Error('Move within 80px of a vent to enter.');
+        throw new Error(`Move within ${VENT_USE_RADIUS}px of a vent to enter.`);
       player.inVent = true;
       this.vents.set(id, target.id);
     } else {

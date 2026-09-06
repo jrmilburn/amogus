@@ -30,6 +30,14 @@ export class MovementInput {
       'keydown',
       (event) => {
         if (
+          event.code.startsWith('Arrow') &&
+          event.target instanceof HTMLElement &&
+          event.target.closest('.boarding-controls')
+        ) {
+          this.keys.delete(event.code);
+          return;
+        }
+        if (
           (event.target instanceof HTMLElement &&
             Boolean(event.target.closest('.task-modal, .vent-routes'))) ||
           !directions[event.code] ||

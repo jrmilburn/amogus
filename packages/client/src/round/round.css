@@ -9,7 +9,7 @@
 .round-reveal {
   position: absolute;
   inset: 0;
-  z-index: 5;
+  z-index: 20;
   display: grid;
   place-items: center;
   padding: max(24px, env(safe-area-inset-top)) 24px;
@@ -18,9 +18,33 @@
   background: #102029;
 }
 .role-card {
-  width: min(100%, 600px);
+  width: min(100%, 840px);
+  display: grid;
+  grid-template-columns: minmax(100px, 220px) minmax(0, 1fr);
+  align-items: center;
+  gap: 24px 40px;
   padding-block: 24px;
-  animation: role-arrive 300ms ease-out;
+}
+.role-portrait {
+  min-height: 180px;
+  border-block: 1px solid #425358;
+  padding-block: 24px;
+  text-align: center;
+}
+.role-portrait canvas {
+  display: block;
+  width: min(100%, 190px);
+  height: auto;
+  margin: auto;
+}
+.is-known .role-portrait canvas {
+  animation: assignment-unseal 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.is-known .role-copy {
+  animation: assignment-lock 650ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.role-copy {
+  min-width: 0;
 }
 .role-kicker {
   margin: 0 0 8px;
@@ -44,7 +68,8 @@
   color: #c6d1cd;
 }
 .role-countdown {
-  margin: 28px 0 0;
+  grid-column: 1 / -1;
+  margin: 0;
   border-top: 1px solid #425358;
   padding-top: 20px;
   color: #e6a65a;
@@ -88,19 +113,51 @@
   outline: 2px solid #e6a65a;
   outline-offset: 4px;
 }
-@keyframes role-arrive {
+@keyframes assignment-unseal {
   from {
-    opacity: 0.65;
-    transform: translateY(10px);
+    clip-path: inset(46% 0);
+    transform: scale(1.08);
+  }
+  to {
+    clip-path: inset(0);
+    transform: scale(1);
+  }
+}
+@keyframes assignment-lock {
+  from {
+    opacity: 0.35;
+    transform: translateX(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
+  }
+}
+@media (max-width: 600px) and (min-height: 501px) {
+  .role-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    text-align: center;
+  }
+  .role-portrait {
+    width: 150px;
+    min-height: 0;
+    padding-block: 12px;
+    margin: auto;
+  }
+  .role-card h2 {
+    font-size: clamp(2.5rem, 10vw, 4rem);
   }
 }
 @media (max-height: 500px) {
   .role-card {
     padding-block: 0;
+    grid-template-columns: 100px minmax(0, 1fr);
+    gap: 12px 24px;
+  }
+  .role-portrait {
+    min-height: 0;
+    padding-block: 8px;
   }
   .role-card h2 {
     font-size: 2.75rem;
@@ -116,7 +173,8 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .role-card {
+  .is-known .role-portrait canvas,
+  .is-known .role-copy {
     animation: none;
   }
 }

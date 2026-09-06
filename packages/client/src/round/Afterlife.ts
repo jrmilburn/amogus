@@ -3,7 +3,7 @@ import type { WalkRoom } from '../movement/Walkaround';
 import type { RoundInfo } from './RoundInfo';
 import type { Renderer } from '../renderer/Renderer';
 import type { CharacterAssets } from '../characters/assets';
-import { CharacterView } from '../characters/CharacterView';
+import { engineerPortrait } from '../characters/portrait';
 import './afterlife.css';
 export const END_REASONS = {
   tasks: 'All crew tasks completed.',
@@ -132,6 +132,11 @@ export class Afterlife {
       '<header><h2 id="finish-title" tabindex="-1"></h2><button class="secondary" data-back>Back</button></header><p class="finish-reason"></p><h3>Winning team</h3><div class="winning-lineup"></div><details><summary>All roles revealed</summary><ul></ul></details><button data-again>Play again</button><p class="hint">The host can start another round with the same room and settings.</p>';
     d.querySelector('h2')!.textContent = victory ? 'Victory' : 'Defeat';
     d.querySelector('.finish-reason')!.textContent = END_REASONS[result.reason];
+    d.querySelector('h3')!.textContent =
+      result.winner === 'crew'
+        ? 'The crew held together.'
+        : 'The impostors took the station.';
+    let winnerIndex = 0;
     for (const p of result.lineup) {
       const color = COLORS.find((c) => c.id === p.color)!;
       const li = document.createElement('li');
@@ -141,22 +146,12 @@ export class Afterlife {
       const figure = document.createElement('figure'),
         caption = document.createElement('figcaption');
       caption.textContent = `${p.name} · #${color.number}`;
-      const view = new CharacterView(this.characters, '', p.color);
-      view.nameTag.visible = false;
-      try {
-        const canvas = this.renderer.app.renderer.extract.canvas({
-          target: view,
-          resolution: 2,
-        });
-        if (canvas instanceof HTMLCanvasElement) {
-          canvas.setAttribute('aria-hidden', 'true');
-          figure.append(canvas);
-        }
-      } catch (error) {
-        console.warn('Lineup portrait unavailable:', error);
-      } finally {
-        view.destroy({ children: true });
-      }
+      figure.style.setProperty(
+        '--arrival-delay',
+        `${Math.min(winnerIndex++, 7) * 65}ms`,
+      );
+      const canvas = engineerPortrait(this.renderer, this.characters, p.color);
+      if (canvas) figure.append(canvas);
       figure.append(caption);
       d.querySelector('.winning-lineup')!.append(figure);
     }

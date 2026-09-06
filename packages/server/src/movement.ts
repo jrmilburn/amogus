@@ -19,6 +19,7 @@ export class MovementSimulation {
     private readonly state: GameState,
     private readonly map: MapDef,
     private readonly frozen: (id: string) => boolean = () => false,
+    private readonly movementMap: () => MapDef = () => this.map,
   ) {}
 
   enqueue(id: string, value: unknown): boolean {
@@ -43,7 +44,8 @@ export class MovementSimulation {
   }
 
   tick() {
-    const collision = collisionMap(this.map, this.state);
+    const map = this.movementMap();
+    const collision = collisionMap(map, this.state);
     this.state.players.forEach((player, id) => {
       player.walking = false;
       const stream = this.inputs.get(id);
@@ -59,7 +61,7 @@ export class MovementSimulation {
         player,
         input,
         this.state.settings.playerSpeed,
-        player.alive ? collision : { size: this.map.size, walls: [] },
+        player.alive ? collision : { size: map.size, walls: [] },
       );
       player.walking = Math.hypot(next.x - player.x, next.y - player.y) > 0.001;
       player.x = next.x;

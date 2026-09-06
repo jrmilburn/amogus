@@ -7,3 +7,4 @@ export * from './tasks.js';
 export * from './actions.js';
 export * from './sabotage.js';
 export * from './meetings.js';
+export * from './boarding.js';

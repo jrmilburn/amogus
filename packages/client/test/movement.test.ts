@@ -1,12 +1,42 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { movePlayer, MOVEMENT_STEP } from '@mutiny/shared';
+import {
+  movePlayer,
+  MOVEMENT_STEP,
+  SETTINGS_FIELDS,
+  DEFAULT_SETTINGS,
+  validateSettingsPatch,
+} from '@mutiny/shared';
 import { Prediction, Interpolation } from '../src/movement/prediction';
 
 const map = {
   size: { width: 2000, height: 2000 },
   walls: [{ x: 600, y: 0, width: 10, height: 1200 }],
 };
+
+test('800px/s maximum is valid and prediction cannot tunnel through thin walls', () => {
+  const speed = SETTINGS_FIELDS.playerSpeed.max;
+  assert.equal(speed, 800);
+  assert.equal(DEFAULT_SETTINGS.playerSpeed, 400);
+  assert.deepEqual(
+    validateSettingsPatch({ playerSpeed: speed }, DEFAULT_SETTINGS),
+    { playerSpeed: speed },
+  );
+  assert.throws(() =>
+    validateSettingsPatch({ playerSpeed: speed + 10 }, DEFAULT_SETTINGS),
+  );
+  const predictor = new Prediction({ x: 100, y: 300 }, map);
+  let server = { x: 100, y: 300 };
+  for (let seq = 1; seq <= 30; seq++) {
+    const input = { seq, dx: 1, dy: 0 };
+    predictor.push(input, speed);
+    server = movePlayer(server, input, speed, map);
+    predictor.reconcile(server, seq, speed);
+    assert.deepEqual(predictor.position, server);
+    assert.ok(server.x < 600, 'thin wall remains solid at maximum speed');
+  }
+  assert.ok(server.x > 550, 'movement reaches the wall');
+});
 test('100ms RTT reconciliation matches authority without backwards corrections, including wall contact', () => {
   const predictor = new Prediction({ x: 100, y: 300 }, map);
   let server = { x: 100, y: 300 };

@@ -233,7 +233,7 @@ export class ImpostorController {
         ? `Kill: ${Number.isFinite(seconds) ? `${seconds} seconds remaining` : 'waiting for server'}`
         : target
           ? `Kill ${target.name} (Q)`
-          : 'Kill: move within 60px of crew',
+          : `Kill: move within ${KILL_RADIUS}px of crew`,
     );
     if (target && !this.killButton.disabled)
       this.marker
@@ -249,7 +249,7 @@ export class ImpostorController {
         ? 'Exit current vent (V)'
         : this.nearbyVent
           ? 'Enter nearby vent (V)'
-          : 'Vent: move within 80px of a vent',
+          : `Vent: move within ${VENT_USE_RADIUS}px of a vent`,
     );
     this.host.classList.toggle('is-in-vent', Boolean(active && own?.inVent));
     this.routes.hidden = this.root.hidden || !own?.inVent;
