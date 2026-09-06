@@ -336,3 +336,252 @@ test('private task markers follow long-task stages, omit completed tasks, and cl
     minimap.destroy();
   }
 });
+
+test('WASD works from passive HUD focus while arrows, typing and task dialogs retain native input', async () => {
+  const { MovementInput } = await import('../src/movement/Input.js');
+  const { blocksGameShortcut } = await import('../src/movement/keyboard.js');
+  doc.body.innerHTML =
+    '<div id="game"><details class="round-assignment" open><summary>Tasks</summary></details><details class="station-minimap" open><summary>Map</summary></details><input><div class="task-modal"><button>Lock</button></div><div id="zone"></div></div>';
+  const game = doc.querySelector<HTMLElement>('#game')!;
+  const input = new MovementInput(game, doc.querySelector('#zone')!);
+  const press = (target: Element, code: string) => {
+    const event = new window.KeyboardEvent('keydown', {
+      code,
+      bubbles: true,
+      cancelable: true,
+    });
+    target.dispatchEvent(event as unknown as Event);
+    return event;
+  };
+  try {
+    for (const summary of game.querySelectorAll('summary')) {
+      summary.focus();
+      assert.equal(press(summary, 'KeyW').defaultPrevented, true);
+      assert.deepEqual(input.direction(), { dx: 0, dy: -1 });
+      window.dispatchEvent(new window.KeyboardEvent('keyup', { code: 'KeyW' }));
+      assert.equal(press(summary, 'ArrowDown').defaultPrevented, false);
+      assert.deepEqual(input.direction(), { dx: 0, dy: 0 });
+      assert.equal(blocksGameShortcut(summary), false);
+    }
+    press(game, 'KeyD');
+    const text = game.querySelector('input')!;
+    text.focus();
+    assert.deepEqual(
+      input.direction(),
+      { dx: 0, dy: 0 },
+      'focusing chat clears a held movement key',
+    );
+    assert.equal(press(text, 'KeyW').defaultPrevented, false);
+    assert.equal(blocksGameShortcut(text), true);
+    const procedure = game.querySelector('button')!;
+    procedure.focus();
+    assert.equal(press(procedure, 'KeyW').defaultPrevented, false);
+    assert.equal(blocksGameShortcut(procedure), true);
+    assert.deepEqual(input.direction(), { dx: 0, dy: 0 });
+  } finally {
+    input.destroy();
+  }
+});
+
+test('input instructions and accessible action labels follow touch and keyboard use', async () => {
+  const { installInputHints, actionLabel, inputInstruction } =
+    await import('../src/movement/inputHints.js');
+  coarse.matches = true;
+  const cleanup = installInputHints();
+  try {
+    assert.equal(actionLabel('Use data transfer', 'E'), 'Use data transfer');
+    assert.equal(inputInstruction('Tap Use', 'Press E'), 'Tap Use');
+    doc.dispatchEvent(
+      new window.KeyboardEvent('keydown', {
+        code: 'KeyW',
+        bubbles: true,
+      }) as unknown as Event,
+    );
+    assert.equal(
+      actionLabel('Use data transfer', 'E'),
+      'Use data transfer (E)',
+    );
+    doc.dispatchEvent(
+      new window.PointerEvent('pointerdown', {
+        pointerType: 'touch',
+        bubbles: true,
+      }) as unknown as Event,
+    );
+    assert.equal(inputInstruction('Tap Use', 'Press E'), 'Tap Use');
+    doc.dispatchEvent(
+      new window.PointerEvent('pointerdown', {
+        pointerType: 'mouse',
+        bubbles: true,
+      }) as unknown as Event,
+    );
+    assert.equal(actionLabel('Kill', 'Q'), 'Kill (Q)');
+  } finally {
+    cleanup();
+    delete doc.documentElement.dataset.input;
+  }
+});
+
+test('task spotter chooses visible local assignments before distance and follows long-task stages', async () => {
+  const { visibleTaskSpots } = await import('../src/tasks/spotter.js');
+  const map = MapDefSchema.parse(mapData);
+  const first = map.tasks.find((task) => task.nextTaskId)!;
+  const next = map.tasks.find((task) => task.id === first.nextTaskId)!;
+  const hidden = map.tasks.find(
+    (task) => task.id !== first.id && task.id !== next.id,
+  )!;
+  hidden.x = 1;
+  hidden.y = 0;
+  first.x = 40;
+  first.y = 0;
+  const assignment = (station: typeof first): TaskAssignment => ({
+    id: station.id,
+    type: station.type,
+    length: station.length,
+    room: station.room,
+    steps: station.nextTaskId ? 2 : 1,
+    step: 1,
+    completed: false,
+  });
+  const task = assignment(first);
+  const own = { x: 0, y: 0 };
+  const spots = visibleTaskSpots(
+    map,
+    [assignment(hidden), task],
+    own,
+    (point) => point !== hidden,
+  );
+  assert.equal(spots.length, 1);
+  assert.equal(
+    spots[0]!.task.id,
+    first.id,
+    'the hidden nearer station must not steal Use',
+  );
+  assert.equal(spots[0]!.reachable, true);
+  assert.equal(
+    visibleTaskSpots(map, [task], { x: 1000, y: 0 }, () => true)[0]!.reachable,
+    false,
+    'visible stations can be spotted before use range',
+  );
+  task.step = 2;
+  assert.equal(
+    visibleTaskSpots(map, [task], own, () => true)[0]!.station.id,
+    next.id,
+  );
+  assert.deepEqual(
+    visibleTaskSpots(map, [{ ...task, completed: true }], own, () => true),
+    [],
+  );
+  assert.deepEqual(
+    visibleTaskSpots(map, [], own, () => true),
+    [],
+    'unassigned stations are never marked',
+  );
+  assert.deepEqual(
+    visibleTaskSpots(map, [task], own, () => false),
+    [],
+  );
+});
+
+test('tracking survives private stage updates and clears after completion or round reset', async () => {
+  const { RoundInfo } = await import('../src/round/RoundInfo.js');
+  const info = new RoundInfo();
+  const map = MapDefSchema.parse(mapData);
+  const first = map.tasks.find((task) => task.nextTaskId)!;
+  const task: TaskAssignment = {
+    id: first.id,
+    type: first.type,
+    length: first.length,
+    room: first.room,
+    steps: 2,
+    step: 1,
+    completed: false,
+  };
+  info.assign({ roundId: 1, fake: false, tasks: [task] }, 'playing', 1);
+  info.trackedTaskId = task.id;
+  info.assign(
+    { roundId: 1, fake: false, tasks: [{ ...task, step: 2 }] },
+    'playing',
+    1,
+  );
+  assert.equal(info.trackedTaskId, task.id);
+  info.assign(
+    { roundId: 1, fake: false, tasks: [{ ...task, completed: true }] },
+    'playing',
+    1,
+  );
+  assert.equal(info.trackedTaskId, undefined);
+  info.trackedTaskId = task.id;
+  info.clear();
+  assert.equal(info.trackedTaskId, undefined);
+});
+
+test('all eight workbenches keep guidance and live status separate from operable instruments', async () => {
+  const { createTaskGame } = await import('../src/tasks/minigames/factory.js');
+  const map = MapDefSchema.parse(mapData);
+  doc.body.innerHTML = '<div id="workbench"></div>';
+  const host = doc.querySelector<HTMLElement>('#workbench')!;
+  const types = new Set(map.tasks.map((task) => task.type));
+  assert.equal(types.size, 8);
+  for (const type of types) {
+    const station = map.tasks.find((task) => task.type === type)!;
+    const game = createTaskGame(
+      { ...station, steps: 1, step: 1, completed: false },
+      10000,
+    );
+    try {
+      game.mount(host, () => {});
+      assert.ok(host.querySelector('.task-guidance > p')?.textContent, type);
+      assert.ok(host.querySelector('.task-guidance [role="status"]'), type);
+      assert.ok(host.querySelector('.task-instrument button'), type);
+      if (type === 'sort-samples') {
+        host.querySelector<HTMLButtonElement>('[data-source="ION"]')!.click();
+        host
+          .querySelector<HTMLButtonElement>('[data-destination="ION"]')!
+          .click();
+        assert.equal(
+          host.querySelector<HTMLButtonElement>('[data-source="ION"]')!
+            .disabled,
+          true,
+        );
+      }
+    } finally {
+      game.unmount();
+    }
+    assert.equal(host.childElementCount, 0);
+  }
+});
+
+test('access keypad Submit completes the remembered code using touch buttons', async () => {
+  const { AccessCodeTask } = await import('../src/tasks/minigames/BatchB.js');
+  class ClockedAccessTask extends AccessCodeTask {
+    hideCode() {
+      this.elapsed = 2100;
+      this.frame();
+    }
+  }
+  doc.body.innerHTML = '<div id="workbench"></div>';
+  const host = doc.querySelector<HTMLElement>('#workbench')!;
+  const game = new ClockedAccessTask(10000, () => {});
+  try {
+    game.mount(host, () => {});
+    host.querySelector<HTMLButtonElement>('.access-reveal')!.click();
+    const code = host
+      .querySelector('.access-display')!
+      .textContent!.replaceAll(' ', '');
+    assert.match(code, /^\d{5}$/);
+    game.hideCode();
+    const buttons = [
+      ...host.querySelectorAll<HTMLButtonElement>('.access-keypad button'),
+    ];
+    for (const digit of code)
+      buttons.find((button) => button.textContent === digit)!.click();
+    buttons.find((button) => button.textContent === 'Submit')!.click();
+    assert.match(
+      host.querySelector('[role="status"]')!.textContent!,
+      /Procedure complete/,
+    );
+    assert.ok(buttons.every((button) => button.disabled));
+  } finally {
+    game.unmount();
+  }
+});

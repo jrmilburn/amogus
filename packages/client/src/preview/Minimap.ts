@@ -3,6 +3,7 @@ import { pointInPolygon } from '@mutiny/shared/maps';
 import { roomBounds } from '../renderer/roomThemes';
 import { minimapPoint, taskDestinations } from './minimap-model';
 import type { TaskAssignment } from '@mutiny/shared';
+import { TASK_SPOT_COLOR, TRACKED_SPOT_COLOR } from '../tasks/spotter';
 import './minimap.css';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -124,11 +125,12 @@ export class Minimap {
       attributeFilter: ['class'],
     });
   }
-  setTasks(tasks: readonly TaskAssignment[]) {
-    if (tasks === this.tasks) return;
+  setTasks(tasks: readonly TaskAssignment[], selected = this.selected) {
+    if (!tasks.some((task) => task.id === selected && !task.completed))
+      selected = undefined;
+    if (tasks === this.tasks && selected === this.selected) return;
     this.tasks = tasks;
-    if (!tasks.some((task) => task.id === this.selected && !task.completed))
-      this.selected = undefined;
+    this.selected = selected;
     this.drawTasks();
   }
   track(id: string) {
@@ -144,7 +146,7 @@ export class Minimap {
         const { x, y } = task.point;
         const mark = element('path', {
           d: `M ${x} ${y - 4} l 4 4 -4 4 -4 -4 Z`,
-          fill: task.id === this.selected ? '#ffffff' : '#99ddcc',
+          fill: `#${(task.id === this.selected ? TRACKED_SPOT_COLOR : TASK_SPOT_COLOR).toString(16).padStart(6, '0')}`,
           stroke: '#091219',
           'stroke-width': 1.5,
         });
@@ -158,7 +160,7 @@ export class Minimap {
     const tracked = destinations.find((task) => task.id === this.selected);
     this.taskLegend.textContent = tracked
       ? `White diamond: ${tracked.room}. Follow the corridors to your task.`
-      : 'Mint diamonds: your unfinished stations. Amber dot: you.';
+      : 'Mint diamonds: your unfinished stations, also marked on visible equipment. Amber dot: you.';
   }
   update(point: Point, inVent = false, preview = false) {
     const p = minimapPoint(this.map, point);

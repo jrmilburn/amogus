@@ -21,11 +21,13 @@ import {
 import { RoundInfo } from './round/RoundInfo';
 import './style.css';
 import { installTouchGuard } from './preview/touchGuard';
+import { installInputHints } from './movement/inputHints';
 import { audio } from './audio/AudioManager';
 import './audio/audio.css';
 import { confirmAction } from './lobby/confirmAction';
 
 installTouchGuard(document);
+installInputHints();
 audio.controls(element('.lobby-options'));
 
 type LobbyRoom = Room<unknown, GameState>;

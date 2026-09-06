@@ -1,3 +1,5 @@
+import { blocksMovement } from './keyboard';
+
 const directions: Record<string, readonly [number, number]> = {
   KeyW: [0, -1],
   ArrowUp: [0, -1],
@@ -29,21 +31,11 @@ export class MovementInput {
     dialog.addEventListener(
       'keydown',
       (event) => {
-        if (
-          event.code.startsWith('Arrow') &&
-          event.target instanceof HTMLElement &&
-          event.target.closest('.boarding-controls')
-        ) {
+        if (blocksMovement(event.target, event.code)) {
           this.keys.delete(event.code);
           return;
         }
         if (
-          (event.target instanceof HTMLElement &&
-            Boolean(
-              event.target.closest(
-                '.task-modal, .confirm-action, .vent-routes, .round-assignment, .station-minimap',
-              ),
-            )) ||
           !directions[event.code] ||
           event.altKey ||
           event.ctrlKey ||
@@ -56,6 +48,13 @@ export class MovementInput {
           return;
         event.preventDefault();
         this.keys.add(event.code);
+      },
+      options,
+    );
+    dialog.addEventListener(
+      'focusin',
+      (event) => {
+        if (blocksMovement(event.target, 'KeyW')) this.clear();
       },
       options,
     );

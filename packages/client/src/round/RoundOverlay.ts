@@ -5,6 +5,7 @@ import type { Renderer } from '../renderer/Renderer';
 import type { CharacterAssets } from '../characters/assets';
 import { engineerPortrait } from '../characters/portrait';
 import './round.css';
+import { inputInstruction, touchInput } from '../movement/inputHints';
 
 /** THESIS: a private assignment unseals around your own engineer, then play begins.
  * OWN-WORLD: original numbered engineer art, mint crew and coral impostor accents.
@@ -127,6 +128,7 @@ export class RoundOverlay {
       this.info.teammates,
       this.info.tasks,
       this.info.fake,
+      touchInput(),
       state.phase === 'starting' ? remaining : 0,
     ]);
     if (signature === this.signature) return;
@@ -187,10 +189,16 @@ export class RoundOverlay {
       ),
     );
     this.assignment.querySelector('.hint')!.textContent = this.info.fake
-      ? 'Use fake stations as cover (E). Kill nearby crew (Q) when ready. Enter a nearby vent (V) to travel through its links.'
+      ? inputInstruction(
+          'Tap Use at a fake task as cover. Tap Kill near crew when ready. Tap Vent to enter or exit.',
+          'Use fake tasks as cover (E). Kill nearby crew (Q) when ready. Enter or exit a vent (V).',
+        )
       : this.info.tasks.every((task) => task.completed)
         ? 'All your tasks are complete. Stay alert and help your crew.'
-        : 'Tap a task to find its room on the map. At the station, press E or tap Use. Completed stages stay saved.';
+        : inputInstruction(
+            'Tap a task to find its room. Follow mint diamonds, then tap Use at the station. Completed stages stay saved.',
+            'Choose a task to find its room. Follow mint diamonds, then press E or click Use. Completed stages stay saved.',
+          );
   }
   destroy() {
     clearInterval(this.timer);

@@ -220,7 +220,14 @@
 
 ## Current handoff
 
-### 2026-09-06 — Mobile UI/UX assessment and implementation
+### 2026-09-06 — Desktop/mobile gameplay usability
+
+- Applied Impeccable and two independent source assessments. Implemented five fixes: input-aware hints/labels with visible cooldowns; fixed thumb action positions; private world/map task diamonds with visibility-first targeting; restored WASD from passive HUD focus; landscape task workbenches with sticky Close. Details and physical-device checklist: `docs/design/gameplay-usability.md`.
+- Verification: all **109 tests** passed (13 shared, 46 server, 50 client), including six new gameplay regressions; Node 22 typecheck, lint and production build passed. Existing Rollup annotation and >500kB bundle advisories remain.
+- Remaining acceptance: browser inventory is empty; rendered layout, safe areas, native Safari/Android input and simultaneous joystick/action checks remain unverified. Changed-markup Impeccable scan returned zero findings. No deployment or service restart performed.
+- Next: review this gameplay PR and complete its device checklist plus `docs/playtest.md` before deployment. The previous mobile UI work is merged through PR #5.
+
+### Previous handoff — Mobile UI/UX assessment (merged in PR #5)
 
 - Used Impeccable for all changed screens; independent design and source/detector assessments are archived in `.impeccable/critique/2026-09-06T06-02-49Z__packages-client-src-preview-mappreview-ts.md` (baseline 23/40; first assessment, no trend).
 - Requested fixes: compact phone HUD with one Map/Tasks disclosure open at a time, two-column touch actions, compact boarding controls, Sound moved into Room options, viewport/touch-action/iOS gesture zoom prevention. Scrolling and simultaneous touch input remain native.

@@ -1,4 +1,6 @@
 import { Graphics } from 'pixi.js';
+import { actionLabel } from '../movement/inputHints';
+import { blocksGameShortcut } from '../movement/keyboard';
 import {
   KILL_RADIUS,
   VENT_USE_RADIUS,
@@ -45,7 +47,7 @@ export class ImpostorController {
     this.root.className = 'impostor-actions';
     this.root.hidden = true;
     this.root.innerHTML =
-      '<p class="impostor-feedback" role="status"></p><button type="button" class="impostor-kill" disabled>Kill<small>Q</small></button><button type="button" class="impostor-vent" disabled>Vent<small>V</small></button>';
+      '<p class="impostor-feedback" role="status"></p><button type="button" class="impostor-kill" disabled>Kill<small class="action-state"></small><small class="key-hint">Q</small></button><button type="button" class="impostor-vent" disabled>Vent<small class="key-hint">V</small></button>';
     this.killButton = this.root.querySelector('.impostor-kill')!;
     this.ventButton = this.root.querySelector('.impostor-vent')!;
     this.notice = this.root.querySelector('p')!;
@@ -73,8 +75,7 @@ export class ImpostorController {
           e.ctrlKey ||
           e.metaKey ||
           tasks.isOpen ||
-          (e.target instanceof HTMLElement &&
-            e.target.matches('input,textarea,select,[contenteditable]'))
+          blocksGameShortcut(e.target)
         )
           return;
         if (e.code === 'KeyQ') {
@@ -224,16 +225,18 @@ export class ImpostorController {
         ? Number.isFinite(seconds)
           ? `${seconds}s`
           : 'Waiting'
-        : 'Q';
-    this.killButton.querySelector('small')!.textContent = killLabel;
+        : this.targetId
+          ? 'Ready'
+          : 'No target';
+    this.killButton.querySelector('.action-state')!.textContent = killLabel;
     const target = this.targetId ? state.players.get(this.targetId) : undefined;
     this.killButton.setAttribute(
       'aria-label',
       seconds > 0
         ? `Kill: ${Number.isFinite(seconds) ? `${seconds} seconds remaining` : 'waiting for server'}`
         : target
-          ? `Kill ${target.name} (Q)`
-          : `Kill: move within ${KILL_RADIUS}px of crew`,
+          ? actionLabel(`Kill ${target.name}`, 'Q')
+          : 'Kill: move closer to a crew member',
     );
     if (target && !this.killButton.disabled)
       this.marker
@@ -246,10 +249,10 @@ export class ImpostorController {
     this.ventButton.setAttribute(
       'aria-label',
       own?.inVent
-        ? 'Exit current vent (V)'
+        ? actionLabel('Exit current vent', 'V')
         : this.nearbyVent
-          ? 'Enter nearby vent (V)'
-          : `Vent: move within ${VENT_USE_RADIUS}px of a vent`,
+          ? actionLabel('Enter nearby vent', 'V')
+          : 'Vent: move closer to a vent',
     );
     this.host.classList.toggle('is-in-vent', Boolean(active && own?.inVent));
     this.routes.hidden = this.root.hidden || !own?.inVent;
