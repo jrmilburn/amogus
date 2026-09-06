@@ -9,7 +9,7 @@
 
 ## Commands
 
-`pnpm install`, `pnpm dev`, `pnpm lint`, `pnpm format`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm map:walls`, `pnpm map:render`, `pnpm --filter @mutiny/client assets`. Hosting: `./scripts/host.sh`, `docker compose logs`, `docker compose down`.
+`pnpm install`, `pnpm dev`, `pnpm lint`, `pnpm format`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm map:walls`, `pnpm map:render`, `pnpm --filter @mutiny/client assets`. Hosting (Docker builds both packages): `./scripts/host.sh` or `./scripts/host.sh --local` without a tunnel, `docker compose logs`, `docker compose down`.
 
 ## Locked architecture
 

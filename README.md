@@ -25,11 +25,21 @@ Build output: `packages/client/dist`, `packages/server/dist`, `packages/shared/d
 
 ## Host from your laptop in 5 minutes
 
-Prerequisites: Node 22, pnpm via Corepack, Docker with Compose, and a domain managed by Cloudflare. Initial dependency and container downloads may take longer than five minutes.
+Prerequisites: Docker with Compose, and a domain managed by Cloudflare for a permanent public URL. Docker builds both the client and server with Node 22 and pnpm; neither needs to be installed on the host. Initial dependency and container downloads may take longer than five minutes.
 
-1. In the Cloudflare dashboard, create a Cloudflare Tunnel and choose the Docker connector. Copy the connector token (the token value, not the entire Docker command).
+Before you have a domain, start just the local server and Caddy (no `.env` or token needed):
+
+```sh
+./scripts/host.sh --local
+```
+
+Open http://localhost:8080, or `http://YOUR_LAN_IP:8080` from another device on the same network. This does not start a tunnel; if you previously started Mutiny's tunnel, stop it with `docker compose stop cloudflared` to remove public access.
+
+When your domain is active on Cloudflare:
+
+1. In the Cloudflare dashboard under **Networking → Tunnels**, create a Cloudflare Tunnel and choose the Docker connector. Copy the connector token (the token value, not the entire Docker command).
 2. Add a published application route for your hostname, e.g. `mutiny.yourdomain.com`, with service URL **`http://caddy:80`**. Cloudflare terminates TLS; Caddy listens on HTTP inside Compose.
-3. Copy `.env.example` to `.env`. Set `TUNNEL_TOKEN` and `PUBLIC_URL` to your token and public HTTPS URL. Keep `.env` private; it is ignored by Git and Docker builds.
+3. Copy `.env.example` to `.env`. Set `TUNNEL_TOKEN` and `PUBLIC_URL` to your token and public HTTPS URL. Keep `.env` private; it is ignored by Git and Docker builds. Run `chmod 600 .env` after creating it.
 4. Run:
 
    ```sh
@@ -38,16 +48,22 @@ Prerequisites: Node 22, pnpm via Corepack, Docker with Compose, and a domain man
 
 5. Open the public URL on a phone with Wi-Fi turned off. Create a room, then have a second player join its invite link. Confirm that profile and ready changes appear on both devices. This verifies both matchmaking and the WebSocket through the tunnel.
 
-Local hosted URL: http://localhost:8080. Set `HOST_PORT` in `.env` if that port is occupied. Compose keeps the game server private on port 2567; `PORT` only controls native development. `docker compose up -d` starts all three services after the initial client build. Restart with `docker compose down && docker compose up -d`.
+Local hosted URL: http://localhost:8080. Set `HOST_PORT` in `.env` if that port is occupied. Compose keeps the game server private on port 2567; `PORT` only controls native development. `docker compose up -d --build` builds and starts all three services once the tunnel token is configured. Restart with `docker compose down && docker compose up -d` (for local-only hosting, use `docker compose up -d server caddy`).
 
-To update: `git pull` then `./scripts/host.sh`. To stop: `docker compose down`. The room state is in memory; restarting the server ends active sessions.
+Containers run in the background and restart automatically when Docker starts, using `restart: unless-stopped`. Manually stopped containers stay stopped across reboots; resume them with `docker compose up -d`. Keep this device powered on and awake, with Docker configured to start at boot. No router port forwarding is needed for the tunnel.
+
+Compose imposes no CPU or memory limits: Mutiny can use available host resources as demand grows, shared with the OS and other applications. This does not reserve RAM or make the single Node game process simulate across every CPU core.
+
+To update: `git pull --ff-only` then `./scripts/host.sh`. To stop: `docker compose down`. The room state is in memory; restarting the server ends active sessions.
 
 ## Troubleshooting
 
 - **Tunnel unavailable:** run `docker compose ps` and `docker compose logs cloudflared`. Check the connector token and that the public route points at `http://caddy:80`.
 - **Port clash:** change `HOST_PORT` in `.env` for hosting, or set `PORT` for native development. Vite requires port 5173 to be available.
 - **WebSocket 502 / connection failed:** inspect `docker compose logs server caddy` and http://localhost:8080/health. Both `/ws/matchmake/...` and `/ws/...` must reach Colyseus with `/ws` stripped. The client derives `ws` or `wss` from the current page origin.
-- **Missing client:** run `./scripts/host.sh` to build the client before starting Caddy.
+- **Missing or stale client:** run `./scripts/host.sh` (or `./scripts/host.sh --local`) to rebuild the Caddy image, which includes the client.
+
+Cloudflare setup reference: [create a tunnel and publish an application](https://developers.cloudflare.com/tunnel/setup/). Use a dedicated Mutiny tunnel with this Compose setup; `caddy` resolves inside its Docker network. A connector for another app on a different Docker network cannot resolve it automatically.
 
 Architecture references: [Colyseus WebSocket transport](https://docs.colyseus.io/server/transport/ws), [Colyseus 0.17 SDK migration](https://docs.colyseus.io/migrating/0.17), and [PixiJS application setup](https://pixijs.com/8.x/tutorials/getting-started).
 
@@ -83,7 +99,7 @@ Set `ADMIN_PASSWORD` to a strong password and restart; `/admin` then uses Basic 
 
 `MAX_ROOMS` defaults to 20 (integer 1–1000). At capacity, creation returns a friendly server-full message; existing rooms can still accept players. This is a single-process in-memory limit, not a distributed deployment scheme. Native PowerShell: `$env:MAX_ROOMS='20'`; set `ADMIN_PASSWORD` in your local environment without committing it. Compose reads both from `.env`. Structured JSON logs go to stdout: `docker compose logs --tail=100 server`. Game logs omit chat, passwords, reconnect tokens and private assignments.
 
-For a throwaway URL, install cloudflared, build the client, and start only the local services: `pnpm install --frozen-lockfile`, `pnpm --filter @mutiny/client... build`, then `TUNNEL_TOKEN=unused docker compose up -d --build server caddy` (Bash/WSL). Run `sh scripts/tunnel-quick.sh` in a separate terminal. It explicitly exposes local Caddy publicly; share the printed HTTPS URL. Stop that terminal to end the tunnel. The script respects exported `HOST_PORT`; it does not read `.env`. No public tunnel is started automatically by development or tests.
+For a throwaway URL, install cloudflared and start the local services with `./scripts/host.sh --local` (Bash/WSL). Docker builds the client and server; no dummy tunnel token is needed. Run `sh scripts/tunnel-quick.sh` in a separate terminal. It explicitly exposes local Caddy publicly; share the printed HTTPS URL. Stop that terminal to end the tunnel. The script respects exported `HOST_PORT`; it does not read `.env`. No public tunnel is started automatically by development or tests.
 
 Update with `git pull --ff-only` then `./scripts/host.sh`, preserving uncommitted work first. Updates restart the in-memory server: finish active games before updating. If Git cannot fast-forward, resolve the branch divergence before rebuilding. A second-machine hosting walkthrough and two real 6+ player games remain required; see [playtest procedure](docs/playtest.md).
 
