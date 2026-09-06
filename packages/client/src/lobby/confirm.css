@@ -1,0 +1,24 @@
+.confirm-action {
+  width: min(440px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid #425358;
+  border-radius: 12px;
+  background: #182124;
+  color: #dde6e4;
+}
+.confirm-action::backdrop {
+  background: rgb(9 18 25 / 85%);
+}
+.confirm-action h2 {
+  font-size: 1.5rem;
+}
+.confirm-action > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.confirm-action button {
+  flex: 1;
+}

@@ -220,6 +220,17 @@
 
 ## Current handoff
 
+### 2026-09-06 — Mobile UI/UX assessment and implementation
+
+- Used Impeccable for all changed screens; independent design and source/detector assessments are archived in `.impeccable/critique/2026-09-06T06-02-49Z__packages-client-src-preview-mappreview-ts.md` (baseline 23/40; first assessment, no trend).
+- Requested fixes: compact phone HUD with one Map/Tasks disclosure open at a time, two-column touch actions, compact boarding controls, Sound moved into Room options, viewport/touch-action/iOS gesture zoom prevention. Scrolling and simultaneous touch input remain native.
+- Five additional improvements: private task destinations/remaining counts and next-stage feedback; mobile Chat/Vote panes with timer, drafts, unread counts and explicit ballots; boarding readiness roster; visible dismissible landscape status and temporary recovery notice; confirmed leave/reset with host reset tucked behind Host controls.
+- Verification: all **103 tests** passed (13 shared, 46 server, 44 client), including six new DOM interaction tests; Node 22 typecheck, lint and production build passed. Changed UI detector returned no findings. Existing Rollup annotation and >500kB bundle advisories remain.
+- Remaining acceptance: connected browser inventory is empty (iab unavailable); DOM tests do not verify rendered CSS or native zoom. Check physical Safari/Android double-tap, pinch, input focus, scrolling, simultaneous joystick/action, 360px/short-landscape layouts, task/map disclosures and ten-player meetings. No deployment or service restart performed.
+- Next: review the UI PR, then run the physical-phone checks and `docs/playtest.md` before deployment. Previous boarding/gameplay tuning is already merged through PR #4; older local/uncommitted statements below are historical.
+
+### Previous handoff — before PR #4 (superseded)
+
 - Walkable waiting lobby and round presentation: new dedicated boarding room with ten spawns, shared authoritative collision, automatic entry on join and scene replacement on start/reset. Room settings preserves profile/colour/settings access; in-room Copy invite, Ready and host Start honor existing eligibility and token privacy. Start teleports to The Hollow, reset returns everyone to boarding. Original engineer portraits now unseal during the private role announcement; result titles and winning-team portraits use a bounded stagger with reduced-motion fallbacks. No extra server countdown or result-action delay.
 - Verification for this addition: all 97 tests pass (13 shared, 46 server, 38 client), including boarding spawn/wall checks and synchronized start/reset positions; typecheck, lint and build pass. One Impeccable detector pass returned no findings; independent source review prompted native arrow scrolling inside boarding controls. Browser inventory remains empty: rendered animation, touch/keyboard, automatic scene transition and loading-cancellation acceptance remain pending. Gameplay tuning and this addition remain local, not committed or pushed.
 

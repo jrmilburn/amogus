@@ -32,6 +32,7 @@ export class RoundOverlay {
     private readonly room: WalkRoom,
     private readonly info: RoundInfo,
     private readonly map: MapDef,
+    private readonly onTrack?: (id: string) => void,
   ) {
     this.root.className = 'round-ui';
     this.root.innerHTML =
@@ -50,7 +51,9 @@ export class RoundOverlay {
     announcement.setAttribute('aria-atomic', 'true');
     this.root.append(announcement);
     this.assignment = this.root.querySelector<HTMLDetailsElement>('details')!;
-    this.assignment.open = matchMedia('(min-width: 1000px)').matches;
+    this.assignment.open = matchMedia(
+      '(min-width: 1000px) and (min-height: 600px)',
+    ).matches;
     this.timer = setInterval(() => this.update(), 100);
     this.update();
   }
@@ -124,7 +127,7 @@ export class RoundOverlay {
       this.info.teammates,
       this.info.tasks,
       this.info.fake,
-      remaining,
+      state.phase === 'starting' ? remaining : 0,
     ]);
     if (signature === this.signature) return;
     this.signature = signature;
@@ -159,23 +162,35 @@ export class RoundOverlay {
       ? `Entering the station in ${remaining}…`
       : 'Waiting for the station…';
     this.assignment.querySelector('summary')!.textContent = known
-      ? `${role} · ${this.info.fake ? 'Fake tasks' : 'Your tasks'} (${this.info.tasks.length})`
+      ? `${this.info.fake ? 'Fake tasks' : 'Tasks'} · ${this.info.tasks.filter((task) => !task.completed).length} left`
       : 'Waiting for your assignment…';
     this.assignment.querySelector('.assignment-team')!.textContent = team;
     this.assignment.querySelector('ul')!.replaceChildren(
-      ...(known ? this.info.tasks : []).map((task) => {
-        const item = document.createElement('li');
-        const roomName =
-          this.map.rooms.find((room) => room.id === task.room)?.name ??
-          task.room;
-        const title = task.type.replaceAll('-', ' ');
-        item.textContent = `${task.completed ? '✓ ' : ''}${roomName}: ${title[0]!.toUpperCase()}${title.slice(1)}${task.steps > 1 ? ` (step ${task.step}/${task.steps})` : ''}${task.completed ? ' — Done' : ''}`;
-        return item;
-      }),
+      ...(known ? this.info.tasks.filter((task) => !task.completed) : []).map(
+        (task) => {
+          const item = document.createElement('li');
+          const roomName =
+            this.map.rooms.find((room) => room.id === task.room)?.name ??
+            task.room;
+          const title = task.type.replaceAll('-', ' ');
+          const button = document.createElement('button');
+          button.className = 'assignment-destination secondary';
+          button.textContent = `${roomName}: ${title[0]!.toUpperCase()}${title.slice(1)}${task.steps > 1 ? ` (step ${task.step}/${task.steps})` : ''}`;
+          button.setAttribute(
+            'aria-label',
+            `${button.textContent}. Show on station map`,
+          );
+          button.onclick = () => this.onTrack?.(task.id);
+          item.append(button);
+          return item;
+        },
+      ),
     );
     this.assignment.querySelector('.hint')!.textContent = this.info.fake
       ? 'Use fake stations as cover (E). Kill nearby crew (Q) when ready. Enter a nearby vent (V) to travel through its links.'
-      : 'Walk within 80px of an assigned station, then press E or tap Use. Follow its instrument instructions; completed stages stay saved.';
+      : this.info.tasks.every((task) => task.completed)
+        ? 'All your tasks are complete. Stay alert and help your crew.'
+        : 'Tap a task to find its room on the map. At the station, press E or tap Use. Completed stages stay saved.';
   }
   destroy() {
     clearInterval(this.timer);

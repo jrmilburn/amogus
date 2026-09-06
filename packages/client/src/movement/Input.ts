@@ -39,7 +39,11 @@ export class MovementInput {
         }
         if (
           (event.target instanceof HTMLElement &&
-            Boolean(event.target.closest('.task-modal, .vent-routes'))) ||
+            Boolean(
+              event.target.closest(
+                '.task-modal, .confirm-action, .vent-routes, .round-assignment, .station-minimap',
+              ),
+            )) ||
           !directions[event.code] ||
           event.altKey ||
           event.ctrlKey ||

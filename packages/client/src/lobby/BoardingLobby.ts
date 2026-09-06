@@ -1,4 +1,4 @@
-import { MAX_PLAYERS, type ServerMessages } from '@mutiny/shared';
+import { COLORS, MAX_PLAYERS, type ServerMessages } from '@mutiny/shared';
 import type { WalkRoom } from '../movement/Walkaround';
 import { lobbyRequirement } from './entry';
 import './boarding.css';
@@ -13,6 +13,7 @@ export class BoardingLobby {
   private root = document.createElement('section');
   private off: () => void;
   private destroyed = false;
+  private rosterKey = '';
   constructor(
     host: HTMLElement,
     private room: WalkRoom,
@@ -21,7 +22,7 @@ export class BoardingLobby {
     this.root.tabIndex = 0;
     this.root.setAttribute('aria-label', 'Waiting lobby controls');
     this.root.innerHTML =
-      '<h3>Waiting for crew</h3><p class="boarding-code"></p><button class="secondary" data-copy>Copy invite</button><label class="boarding-fallback" hidden>Copy this link<input readonly></label><p class="boarding-help" id="boarding-help"></p><div class="boarding-actions"><button class="secondary" data-ready aria-pressed="false">Mark ready</button><button data-start aria-describedby="boarding-help">Start game</button></div><p class="boarding-status hint" role="status"></p>';
+      '<div class="boarding-invite"><p class="boarding-code"></p><button class="secondary" data-copy>Copy invite</button></div><details class="boarding-crew"><summary>Crew aboard</summary><ul></ul></details><label class="boarding-fallback" hidden>Copy this link<input readonly></label><p class="boarding-help" id="boarding-help"></p><div class="boarding-actions"><button class="secondary" data-ready aria-pressed="false">Mark ready</button><button data-start aria-describedby="boarding-help">Start game</button></div><p class="boarding-status hint" role="status"></p>';
     host.append(this.root);
     this.root.querySelector<HTMLButtonElement>('[data-ready]')!.onclick =
       () => {
@@ -69,11 +70,44 @@ export class BoardingLobby {
       this.room.state.settings.impostors,
     );
     this.root.querySelector('.boarding-code')!.textContent =
-      `Room ${this.room.roomId} · ${players.length}/${MAX_PLAYERS} aboard`;
+      `Room ${this.room.roomId}`;
+    const rosterKey = JSON.stringify(
+      players.map((p) => [
+        p.id,
+        p.name,
+        p.color,
+        p.ready,
+        p.connected,
+        p.isHost,
+      ]),
+    );
+    if (rosterKey !== this.rosterKey) {
+      this.rosterKey = rosterKey;
+      const connected = players.filter((p) => p.connected);
+      this.root.querySelector('.boarding-crew summary')!.textContent =
+        `${players.length}/${MAX_PLAYERS} aboard · ${connected.filter((p) => p.ready).length}/${connected.length} ready`;
+      this.root.querySelector('.boarding-crew ul')!.replaceChildren(
+        ...players.map((p) => {
+          const li = document.createElement('li');
+          const color = COLORS.find((c) => c.id === p.color)!;
+          const name = document.createElement('span');
+          name.textContent = `#${color.number} ${p.name}${p.id === this.room.sessionId ? ' (you)' : ''}${p.isHost ? ' · Host' : ''}`;
+          name.style.setProperty('--crew-color', color.hex);
+          const status = document.createElement('span');
+          status.textContent = !p.connected
+            ? 'Reconnecting'
+            : p.ready
+              ? 'Ready'
+              : 'Not ready';
+          li.append(name, status);
+          return li;
+        }),
+      );
+    }
     const help =
       requirement ??
       (own.isHost
-        ? 'Your crew can depart. Ready marks are advisory.'
+        ? 'Ready to depart. You can start before everyone marks ready.'
         : 'Waiting for the host to start.');
     const helper = this.root.querySelector('.boarding-help')!;
     if (helper.textContent !== help) helper.textContent = help;

@@ -94,8 +94,20 @@ export class TaskController {
     this.unsubscribe.push(
       room.onMessage<ServerMessages['taskClosed']>('taskClosed', (payload) => {
         if (payload.token !== this.opened?.token) return;
+        const task = this.info.tasks.find(
+          (task) => task.id === this.opened?.taskId,
+        );
         this.close(false);
-        this.status.textContent = payload.error ?? 'Station check saved.';
+        const roomName =
+          this.renderer.map.rooms.find((room) => room.id === task?.room)
+            ?.name ?? task?.room;
+        this.status.textContent =
+          payload.error ??
+          (task?.completed
+            ? `Task complete · ${this.info.tasks.filter((task) => !task.completed).length} remaining.`
+            : roomName
+              ? `Stage saved · next station: ${roomName}.`
+              : 'Station check saved.');
       }),
     );
     this.unsubscribe.push(
@@ -222,7 +234,9 @@ export class TaskController {
     this.modal = undefined;
     this.walk.setTaskOpen(false);
     if (hadModal && this.host.open)
-      this.host.querySelector<HTMLElement>('.map-close')?.focus();
+      this.host
+        .querySelector<HTMLElement>('.round-assignment summary')
+        ?.focus();
   }
   destroy() {
     this.close(true);

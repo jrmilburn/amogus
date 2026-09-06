@@ -40,6 +40,73 @@
 .meeting-panel {
   margin-top: 16px;
 }
+.meeting-views {
+  display: none;
+}
+.meeting-navigation {
+  background: #102029;
+}
+.meeting-host-tools {
+  margin-top: 24px;
+}
+.meeting-host-tools summary {
+  min-height: 44px;
+  cursor: pointer;
+  align-content: center;
+  color: #a6b6b7;
+}
+@media (max-width: 650px), (pointer: coarse) and (max-height: 500px) {
+  .meeting-navigation {
+    position: sticky;
+    top: -16px;
+    z-index: 2;
+    padding-block: 12px;
+  }
+  .meeting-views {
+    display: flex;
+    gap: 8px;
+  }
+  .meeting-views button {
+    flex: 1;
+  }
+  .meeting-views [aria-pressed='true'] {
+    border-color: #e6a65a;
+    color: #e6a65a;
+  }
+  .meeting-panel .meeting-discussion {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .meeting-panel[data-view='chat'] .meeting-discussion > section:first-child,
+  .meeting-panel[data-view='vote'] .meeting-chat {
+    display: none;
+  }
+  .meeting-intro .meeting-caller {
+    margin-block: 0;
+    font-size: 0.875rem;
+  }
+  .meeting-intro .meeting-portrait {
+    display: none;
+  }
+  .meeting-intro .meeting-caller p {
+    margin-block: 4px;
+  }
+  .meeting-panel .meeting-transcript {
+    height: clamp(100px, 28dvh, 260px);
+  }
+  .meeting-panel .meeting-player {
+    min-height: 56px;
+  }
+  .meeting-intro {
+    padding: 16px;
+  }
+  .meeting-panel .ballot-controls {
+    position: sticky;
+    bottom: -16px;
+    background: #102029;
+    padding-block: 12px;
+  }
+}
 .meeting-result-announcement {
   position: absolute;
   width: 1px;
