@@ -22,6 +22,8 @@ export class MeetingPanel {
   private sentText = '';
   private ejectionShown = false;
   private announcedResultStage = 0;
+  private view: 'chat' | 'vote' = 'chat';
+  private unread = 0;
   constructor(
     private dialog: HTMLDialogElement,
     private room: WalkRoom,
@@ -36,6 +38,27 @@ export class MeetingPanel {
     resultAnnouncement.setAttribute('role', 'status');
     this.root.append(resultAnnouncement);
     dialog.append(this.root);
+    const navigation = document.createElement('div');
+    navigation.className = 'meeting-navigation';
+    const views = document.createElement('div');
+    views.className = 'meeting-views';
+    views.setAttribute('role', 'group');
+    views.setAttribute('aria-label', 'Meeting view');
+    for (const view of ['chat', 'vote'] as const) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'secondary';
+      button.dataset.view = view;
+      button.onclick = () => this.setView(view);
+      views.append(button);
+    }
+    navigation.append(
+      this.root.querySelector('.meeting-phase')!,
+      this.root.querySelector('.meeting-timer')!,
+      views,
+    );
+    this.root.prepend(navigation);
+    this.setView('chat');
     this.root.querySelector<HTMLButtonElement>('[data-skip]')!.onclick = () => {
       this.selected = null;
       this.frame();
@@ -82,7 +105,11 @@ export class MeetingPanel {
         : state.phase === 'voting'
           ? 'Voting is open'
           : 'Discuss what happened';
+      const typing =
+        this.root.querySelector('input') === document.activeElement;
+      if (!typing) this.setView(state.phase === 'voting' ? 'vote' : 'chat');
     }
+    this.root.querySelector<HTMLElement>('.meeting-views')!.hidden = ejection;
     const deadline = ejection
       ? state.phaseEndsAt
       : state.phase === 'voting'
@@ -214,11 +241,53 @@ export class MeetingPanel {
       p.textContent = `${message.name}: ${message.text}`;
       transcript.append(p);
       this.chatId = message.id;
+      if (this.view !== 'chat') this.unread++;
       appended = true;
     }
     while (transcript.childElementCount > 100)
       transcript.firstElementChild!.remove();
     if (appended && atEnd) transcript.scrollTop = transcript.scrollHeight;
+    this.updateViews();
+  }
+  private setView(view: 'chat' | 'vote') {
+    const focused = document.activeElement;
+    if (view !== this.view) this.dialog.scrollTop = 0;
+    this.view = view;
+    this.root.dataset.view = view;
+    if (view === 'chat') {
+      this.unread = 0;
+      const transcript = this.root.querySelector<HTMLElement>(
+        '.meeting-transcript',
+      )!;
+      transcript.scrollTop = transcript.scrollHeight;
+    }
+    this.updateViews();
+    if (
+      focused instanceof HTMLElement &&
+      focused.closest('.meeting-discussion') &&
+      matchMedia(
+        '(max-width: 650px), (pointer: coarse) and (max-height: 500px)',
+      ).matches
+    )
+      this.root
+        .querySelector<HTMLButtonElement>(`button[data-view="${view}"]`)!
+        .focus();
+  }
+  private updateViews() {
+    for (const button of this.root.querySelectorAll<HTMLButtonElement>(
+      '[data-view]',
+    )) {
+      const chat = button.dataset.view === 'chat';
+      button.textContent = chat
+        ? `Chat${this.unread ? ` (${this.unread} new)` : ''}`
+        : this.room.state.phase === 'voting'
+          ? 'Vote now'
+          : 'Crew / vote';
+      button.setAttribute(
+        'aria-pressed',
+        String(button.dataset.view === this.view),
+      );
+    }
   }
   private identity() {
     return {

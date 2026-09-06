@@ -12,11 +12,6 @@
   background: #182124;
   color: #dde6e4;
 }
-.is-boarding .audio-settings {
-  left: 24px;
-  right: auto;
-  top: 112px;
-}
 .is-boarding .map-controls {
   left: 24px;
   right: auto;
@@ -28,6 +23,51 @@
 .boarding-controls p {
   font-size: 0.875rem;
   line-height: 1.5;
+}
+.boarding-invite {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+}
+.boarding-invite .boarding-code {
+  font-weight: bold;
+  margin: 0;
+}
+.boarding-crew {
+  margin-block: 8px;
+}
+.boarding-crew summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+}
+.boarding-crew ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.boarding-crew li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: 8px;
+  border-top: 1px solid #425358;
+  font-size: 0.875rem;
+}
+.boarding-crew li span {
+  overflow-wrap: anywhere;
+}
+.boarding-crew li span:first-child::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  background: var(--crew-color);
+}
+.boarding-crew li span:last-child {
+  color: #a6b6b7;
 }
 .boarding-code {
   color: #e6a65a;
@@ -56,10 +96,6 @@
 @media (max-width: 700px), (max-height: 500px) {
   .is-boarding .map-controls {
     display: none;
-  }
-  .is-boarding .audio-settings {
-    left: 12px;
-    top: 84px;
   }
   .boarding-controls {
     top: auto;

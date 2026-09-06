@@ -89,7 +89,8 @@
   color: #dde6e4;
 }
 .round-assignment summary {
-  min-height: 24px;
+  min-height: 44px;
+  align-content: center;
   cursor: pointer;
   color: #99ddcc;
 }
@@ -101,10 +102,17 @@
   margin: 12px 0;
 }
 .round-assignment ul {
-  padding-left: 20px;
+  padding-left: 0;
+  list-style: none;
   margin: 12px 0;
   font-size: 0.875rem;
   line-height: 1.5;
+}
+.assignment-destination {
+  width: 100%;
+  text-align: left;
+  font-size: 0.875rem;
+  padding: 10px;
 }
 .round-assignment li + li {
   margin-top: 8px;

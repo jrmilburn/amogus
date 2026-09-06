@@ -10,13 +10,10 @@ export class GameAudio {
   private lastAlarm = 0;
   private vents = new Map<string, boolean>();
   private off: (() => void)[] = [];
-  private controls: HTMLElement;
   constructor(
-    host: HTMLElement,
     private room: WalkRoom,
     private renderer: Renderer,
   ) {
-    this.controls = audio.controls(host);
     this.completed = room.state.players.get(room.sessionId)?.tasksDone ?? 0;
     this.off.push(room.onMessage('killed', () => audio.play('kill')));
   }
@@ -65,6 +62,5 @@ export class GameAudio {
   destroy() {
     this.off.forEach((off) => off());
     audio.setAmbient(false);
-    this.controls.remove();
   }
 }

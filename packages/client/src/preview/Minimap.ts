@@ -1,7 +1,8 @@
 import type { MapDef, Point } from '@mutiny/shared/maps';
 import { pointInPolygon } from '@mutiny/shared/maps';
 import { roomBounds } from '../renderer/roomThemes';
-import { minimapPoint } from './minimap-model';
+import { minimapPoint, taskDestinations } from './minimap-model';
+import type { TaskAssignment } from '@mutiny/shared';
 import './minimap.css';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -28,6 +29,10 @@ export class Minimap {
   private observer: ResizeObserver;
   private positionObserver: MutationObserver;
   private lastRoom = '';
+  private taskLayer = element('g', {});
+  private taskLegend = document.createElement('p');
+  private tasks: readonly TaskAssignment[] = [];
+  private selected?: string;
   constructor(
     private host: HTMLDialogElement,
     private map: MapDef,
@@ -96,9 +101,11 @@ export class Minimap {
       stroke: '#091219',
       'stroke-width': 1.5,
     });
-    svg.append(this.marker);
+    svg.append(this.taskLayer, this.marker);
     this.location.className = 'minimap-location';
-    this.root.append(summary, svg, this.location);
+    this.taskLegend.className = 'minimap-task-legend';
+    this.taskLegend.hidden = true;
+    this.root.append(summary, svg, this.location, this.taskLegend);
     title.append(this.root);
     host.classList.add('has-minimap');
     const measure = () => {
@@ -116,6 +123,42 @@ export class Minimap {
       attributes: true,
       attributeFilter: ['class'],
     });
+  }
+  setTasks(tasks: readonly TaskAssignment[]) {
+    if (tasks === this.tasks) return;
+    this.tasks = tasks;
+    if (!tasks.some((task) => task.id === this.selected && !task.completed))
+      this.selected = undefined;
+    this.drawTasks();
+  }
+  track(id: string) {
+    this.selected = id;
+    this.drawTasks();
+    this.root.open = true;
+    this.root.querySelector('summary')!.focus();
+  }
+  private drawTasks() {
+    const destinations = taskDestinations(this.map, this.tasks);
+    this.taskLayer.replaceChildren(
+      ...destinations.map((task) => {
+        const { x, y } = task.point;
+        const mark = element('path', {
+          d: `M ${x} ${y - 4} l 4 4 -4 4 -4 -4 Z`,
+          fill: task.id === this.selected ? '#ffffff' : '#99ddcc',
+          stroke: '#091219',
+          'stroke-width': 1.5,
+        });
+        const title = element('title', {});
+        title.textContent = `Your task · ${task.room}`;
+        mark.append(title);
+        return mark;
+      }),
+    );
+    this.taskLegend.hidden = !destinations.length;
+    const tracked = destinations.find((task) => task.id === this.selected);
+    this.taskLegend.textContent = tracked
+      ? `White diamond: ${tracked.room}. Follow the corridors to your task.`
+      : 'Mint diamonds: your unfinished stations. Amber dot: you.';
   }
   update(point: Point, inVent = false, preview = false) {
     const p = minimapPoint(this.map, point);

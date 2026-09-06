@@ -20,6 +20,13 @@ import {
 } from './lobby/entry';
 import { RoundInfo } from './round/RoundInfo';
 import './style.css';
+import { installTouchGuard } from './preview/touchGuard';
+import { audio } from './audio/AudioManager';
+import './audio/audio.css';
+import { confirmAction } from './lobby/confirmAction';
+
+installTouchGuard(document);
+audio.controls(element('.lobby-options'));
 
 type LobbyRoom = Room<unknown, GameState>;
 const status = element<HTMLParagraphElement>('#status');
@@ -489,7 +496,7 @@ function showLanding() {
   updateEntryColors(selectedColor);
   entryName.focus();
 }
-element('#leave').addEventListener('click', () => {
+function leaveRoom() {
   const previous = room;
   room = undefined;
   knowledge.clear();
@@ -501,6 +508,18 @@ element('#leave').addEventListener('click', () => {
   showInvite();
   showLanding();
   announce('You left the room.');
+}
+element('#leave').addEventListener('click', () => {
+  const current = room;
+  confirmAction(
+    document.body,
+    'Leave this room?',
+    'You will give up your place. An active round cannot be rejoined after leaving.',
+    'Leave room',
+    () => {
+      if (room === current) leaveRoom();
+    },
+  );
 });
 element<HTMLFormElement>('#profile-form').addEventListener(
   'submit',
@@ -521,9 +540,20 @@ readyButton.addEventListener('click', () => {
   if (own) send(CLIENT_MESSAGES.ready, { ready: !own.ready });
 });
 startButton.addEventListener('click', () => send(CLIENT_MESSAGES.start, {}));
-element('#cancel-start').addEventListener('click', () =>
-  send(CLIENT_MESSAGES.cancelStart, {}),
-);
+element('#cancel-start').addEventListener('click', () => {
+  const current = room;
+  const roundId = current?.state.roundId;
+  confirmAction(
+    document.body,
+    'End this round for everyone?',
+    'All round progress will be lost. Your crew and room settings will stay together in the lobby.',
+    'End round',
+    () => {
+      if (room === current && room?.state.roundId === roundId)
+        send(CLIENT_MESSAGES.cancelStart, {});
+    },
+  );
+});
 element('#copy-link').addEventListener('click', () => {
   void copyInvite();
 });

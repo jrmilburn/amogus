@@ -1,4 +1,5 @@
 import { Graphics } from 'pixi.js';
+import { confirmAction } from '../lobby/confirmAction';
 import {
   COLORS,
   nearestBody,
@@ -140,7 +141,7 @@ export class MeetingController {
         this.close();
         this.show();
       }
-      this.modal!.querySelector<HTMLButtonElement>('[data-reset]')!.hidden =
+      this.modal!.querySelector<HTMLElement>('.meeting-host-tools')!.hidden =
         !own?.isHost;
       this.panel?.frame();
     } else if (this.modal) {
@@ -184,7 +185,7 @@ export class MeetingController {
     d.className = 'task-modal meeting-intro';
     d.setAttribute('aria-labelledby', 'meeting-title');
     d.innerHTML =
-      '<header><h2 id="meeting-title" tabindex="-1"></h2><button type="button" class="secondary" data-back>Back</button></header><div class="meeting-caller"><div class="meeting-portrait"></div><div><p class="meeting-name"></p><p class="meeting-location"></p></div></div><button type="button" class="secondary" data-reset hidden>Reset round to lobby</button><p class="meeting-reset-status" role="status"></p>';
+      '<header><h2 id="meeting-title" tabindex="-1"></h2><button type="button" class="secondary" data-back>Back</button></header><div class="meeting-caller"><div class="meeting-portrait"></div><div><p class="meeting-name"></p><p class="meeting-location"></p></div></div><details class="meeting-host-tools" hidden><summary>Host controls</summary><button type="button" class="secondary" data-reset>End round for everyone</button><p class="meeting-reset-status" role="status"></p></details>';
     const title =
       meeting.reason === 'report' ? 'Dead body reported' : 'Emergency meeting';
     d.querySelector('h2')!.textContent = title;
@@ -231,11 +232,23 @@ export class MeetingController {
       back();
     });
     d.querySelector<HTMLButtonElement>('[data-reset]')!.onclick = () => {
-      this.room.send('cancelStart', {});
-      d.querySelector('.meeting-reset-status')!.textContent =
-        'Requesting lobby reset…';
+      const roundId = this.room.state.roundId;
+      confirmAction(
+        d,
+        'End this round for everyone?',
+        'All round progress will be lost. Your crew and room settings will stay together in the lobby.',
+        'End round',
+        () => {
+          if (d.isConnected && this.room.state.roundId === roundId) {
+            this.room.send('cancelStart', {});
+            d.querySelector('.meeting-reset-status')!.textContent =
+              'Requesting lobby reset…';
+          }
+        },
+      );
     };
     this.panel = new MeetingPanel(d, this.room, this.renderer, this.characters);
+    d.append(d.querySelector('.meeting-host-tools')!);
     this.host.append(d);
     d.showModal();
     d.querySelector<HTMLElement>(

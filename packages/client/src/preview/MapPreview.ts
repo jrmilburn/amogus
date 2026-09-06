@@ -1,5 +1,5 @@
 import mapData from '@mutiny/shared/maps/the-hollow.json';
-import { BOARDING_MAP } from '@mutiny/shared';
+import { BOARDING_MAP, type TaskAssignment } from '@mutiny/shared';
 import { BoardingLobby } from '../lobby/BoardingLobby';
 import { MapDefSchema } from '@mutiny/shared/maps';
 import { loadStationAssets } from '../renderer/assets';
@@ -25,6 +25,7 @@ import { GameAudio } from '../audio/GameAudio';
 import { GamePolish } from './GamePolish';
 import { MobileUX } from './MobileUX';
 import '../audio/audio.css';
+const noTasks: readonly TaskAssignment[] = [];
 
 export async function openMapPreview(
   trigger?: HTMLButtonElement,
@@ -43,7 +44,7 @@ export async function openMapPreview(
   if (boarding) {
     dialog.classList.add('is-boarding');
     dialog.querySelector('h2')!.textContent = 'Boarding room';
-    dialog.querySelector('.map-close')!.textContent = 'Room settings';
+    dialog.querySelector('.map-close')!.textContent = 'Room options';
   }
   document.body.append(dialog);
   const select = dialog.querySelector<HTMLSelectElement>('select')!;
@@ -90,18 +91,24 @@ export async function openMapPreview(
   const location = dialog.querySelector<HTMLElement>('.map-location')!;
   const events = new AbortController();
   const connectionStatus = document.createElement('p');
+  let connectionTimer: ReturnType<typeof setTimeout> | undefined;
   connectionStatus.className = 'map-connection-status';
   connectionStatus.setAttribute('role', 'status');
   connectionStatus.hidden = true;
   dialog.append(connectionStatus);
   const dropped = () => {
+    clearTimeout(connectionTimer);
     connectionStatus.hidden = false;
     connectionStatus.textContent =
       'Connection interrupted. Reconnecting for up to 30 seconds…';
   };
   const reconnected = () => {
+    clearTimeout(connectionTimer);
     connectionStatus.hidden = false;
     connectionStatus.textContent = 'Reconnected to your crew.';
+    connectionTimer = setTimeout(() => {
+      connectionStatus.hidden = true;
+    }, 4000);
   };
   room?.onDrop(dropped);
   room?.onReconnect(reconnected);
@@ -123,11 +130,12 @@ export async function openMapPreview(
   let boardingLobby: BoardingLobby | undefined;
   const minimap = rehearsing || boarding ? undefined : new Minimap(dialog, map);
   const roundOverlay = room
-    ? new RoundOverlay(dialog, room, knowledge, map)
+    ? new RoundOverlay(dialog, room, knowledge, map, (id) => minimap?.track(id))
     : undefined;
   const zone = document.createElement('div');
   if (room) {
     dialog.classList.add('is-walkaround');
+    dialog.querySelector('.map-close')!.textContent = 'Room options';
     dialog.setAttribute(
       'aria-label',
       boarding ? 'Waiting lobby · Boarding room' : 'Walk around The Hollow',
@@ -157,6 +165,7 @@ export async function openMapPreview(
   function close() {
     if (closed) return;
     closed = true;
+    clearTimeout(connectionTimer);
     events.abort();
     room?.onDrop.remove(dropped);
     room?.onReconnect.remove(reconnected);
@@ -369,7 +378,7 @@ export async function openMapPreview(
           characters!,
         );
         afterlife = new Afterlife(dialog, room, knowledge, next, characters!);
-        gameAudio = new GameAudio(dialog, room, next);
+        gameAudio = new GameAudio(room, next);
         polish = new GamePolish(dialog, room, next);
         mobile = new MobileUX(dialog);
         if (boarding) boardingLobby = new BoardingLobby(dialog, room);
@@ -383,6 +392,13 @@ export async function openMapPreview(
       next.onFrame = (seconds) => {
         rehearsal?.update();
         if (walk) {
+          minimap?.setTasks(
+            room?.state.phase === 'playing' &&
+              room.state.roundId === knowledge.roundId &&
+              room.state.sabotage?.kind !== 'comms'
+              ? knowledge.tasks
+              : noTasks,
+          );
           walk.frame(seconds, location);
           minimap?.update(
             walk.target,
@@ -396,6 +412,7 @@ export async function openMapPreview(
           gameAudio?.frame();
           polish?.frame();
           boardingLobby?.frame();
+          mobile?.frame(room?.state.phase === 'playing');
           return;
         }
         const dx =
