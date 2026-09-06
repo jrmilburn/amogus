@@ -220,6 +220,9 @@
 
 ## Current handoff
 
+- Entry redesign: approved concept B implemented with explicit Create/Join modes, one submit action, direct invitation, optional colours, room-code/copy rail, collapsed lobby profile/settings and reconnect-aware launch gating. Renamed displayed game branding to **Theimposterissus** (exact capitalisation); internal package names and saved-preference keys remain compatible.
+- Verification: 93 automated tests passed (11 shared, 45 server, 37 client), typecheck and production build passed; existing upstream Rollup and large-map-chunk advisories remain. Impeccable detector returned no findings. Independent source review prompted a tighter mobile introduction. Browser inventory is empty: rendered desktop/mobile, keyboard and real invite-link flow remain acceptance checks, not verified results.
+
 1. Local implementation and automated verification for #18–#23 are finished. #24's two real 6+ player games remain the main external gate; visual/device/hosting acceptance remains as explicitly recorded above.
 2. Execute `docs/playtest.md`, including 360px task UI, Safari/Android, audio, ghost/result focus, refreshed-tab reconnect, public hosting and measured performance; record results here.
 3. See `KNOWN_ISSUES.md` for the precise acceptance gaps. Historical sections below are previous handoff context, not current implementation status.

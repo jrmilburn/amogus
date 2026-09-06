@@ -5,16 +5,19 @@ import {
   COLORS,
   CLIENT_MESSAGES,
   SERVER_MESSAGES,
-  ROOM_CODE_ALPHABET,
-  ROOM_CODE_LENGTH,
   MAX_PLAYERS,
   sanitizeName,
-  startRequirement,
   type ClientMessages,
   type ServerMessages,
   type ColorId,
 } from '@mutiny/shared';
 import { colorPicker, element, settingsControls } from './lobby/controls';
+import {
+  entryPresentation,
+  lobbyRequirement,
+  validCode,
+  type EntryMode,
+} from './lobby/entry';
 import { RoundInfo } from './round/RoundInfo';
 import './style.css';
 
@@ -24,18 +27,16 @@ const entryForm = element<HTMLFormElement>('#entry-form');
 const entryName = element<HTMLInputElement>('#entry-name');
 const profileName = element<HTMLInputElement>('#profile-name');
 const codeInput = element<HTMLInputElement>('#join-code');
-const joinButton = element<HTMLButtonElement>('#join');
+const entryButton = element<HTMLButtonElement>('#entry-submit');
 const readyButton = element<HTMLButtonElement>('#ready');
 const startButton = element<HTMLButtonElement>('#start');
-if (matchMedia('(max-width: 600px)').matches) {
-  element<HTMLDetailsElement>('#settings-panel').open = false;
-}
 const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
 const client = new Client(`${protocol}//${location.host}/ws`);
 let room: LobbyRoom | undefined;
 let selectedColor: ColorId = 'coral';
 let busy = false;
 let inviteCode: string | undefined;
+let entryMode: EntryMode = 'create';
 let lastRoster = '';
 let knowledge = new RoundInfo();
 let openedRound = 0;
@@ -69,32 +70,46 @@ const updateSettings = settingsControls(element('#settings-grid'), (patch) => {
   send(CLIENT_MESSAGES.updateSettings, patch);
 });
 
-function validCode(code: string) {
-  return (
-    code.length === ROOM_CODE_LENGTH &&
-    [...code].every((letter) => ROOM_CODE_ALPHABET.includes(letter))
-  );
-}
 function showInvite(code?: string) {
   inviteCode = code;
-  codeInput.hidden = Boolean(code);
-  element('#code-label').hidden = Boolean(code);
-  element('#change-code').hidden = !code;
-  element('#join-title').textContent = code
-    ? `You've been invited to ${code}`
-    : 'Have a room code?';
-  joinButton.textContent = code ? `Join ${code}` : 'Join game';
-  element('#create').hidden = Boolean(code);
+  entryMode = code ? 'join' : 'create';
+  renderEntry();
+}
+function renderEntry() {
+  const view = entryPresentation(entryMode, inviteCode, busy);
+  element('#mode-create').setAttribute('aria-pressed', String(!view.joining));
+  element('#mode-join').setAttribute('aria-pressed', String(view.joining));
+  element('#code-field').hidden = !view.showCode;
+  codeInput.disabled = view.codeDisabled;
+  codeInput.required = view.codeRequired;
+  element('#invite-preview').hidden = !view.showInvite;
+  element('#invite-code').textContent = inviteCode ?? '';
+  element('#entry-title').textContent = view.title;
+  element('#entry-help').textContent = view.help;
+  entryButton.textContent = view.action;
+}
+for (const mode of ['create', 'join'] as const) {
+  element(`#mode-${mode}`).addEventListener('click', () => {
+    if (busy) return;
+    entryMode = mode;
+    announce('');
+    renderEntry();
+  });
 }
 const queryCode = new URL(location.href).searchParams
   .get('code')
   ?.trim()
   .toUpperCase();
 if (queryCode && validCode(queryCode)) showInvite(queryCode);
-else if (queryCode)
+else if (queryCode) {
+  entryMode = 'join';
+  renderEntry();
   announce('That invite code is invalid. Ask the host for a new link.', true);
+}
 element('#change-code').addEventListener('click', () => {
-  showInvite();
+  inviteCode = undefined;
+  entryMode = 'join';
+  renderEntry();
   codeInput.focus();
 });
 codeInput.addEventListener('input', () => {
@@ -109,12 +124,7 @@ function setBusy(value: boolean) {
   >('input, button'))
     control.disabled = value;
   updateEntryColors(selectedColor, new Set(), value);
-  element('#create').textContent = value ? 'Connecting…' : 'Create game';
-  joinButton.textContent = value
-    ? 'Connecting…'
-    : inviteCode
-      ? `Join ${inviteCode}`
-      : 'Join game';
+  renderEntry();
 }
 function joinError(error: unknown): string {
   const message = error instanceof Error ? error.message : '';
@@ -131,11 +141,7 @@ function joinError(error: unknown): string {
 entryForm.addEventListener('submit', (event) => {
   event.preventDefault();
   if (busy) return;
-  const joining =
-    inviteCode !== undefined ||
-    (event.submitter as HTMLButtonElement | null)?.value === 'join' ||
-    document.activeElement === codeInput;
-  void enter(joining);
+  void enter(entryMode === 'join');
 });
 async function enter(joining: boolean, reconnectToken?: string) {
   let name: string;
@@ -212,7 +218,6 @@ async function enter(joining: boolean, reconnectToken?: string) {
           );
       },
     );
-    // Refresh-to-reconnect arrives in #22; do not imply it already works.
     joined.onMessage<ServerMessages['voteResult']>(
       SERVER_MESSAGES.voteResult,
       (payload) => {
@@ -411,6 +416,8 @@ function render() {
   }
   if (document.activeElement !== profileName) profileName.value = own.name;
   selectedColor = own.color;
+  element('#profile-summary').textContent =
+    `${own.name} · ${COLORS.find((color) => color.id === own.color)!.name}`;
   updateLobbyColors(
     own.color,
     new Set(players.filter((p) => p.id !== sessionId).map((p) => p.color)),
@@ -427,10 +434,7 @@ function render() {
   element('#settings-owner').textContent = own.isHost
     ? 'You are the host'
     : 'Only the host can change these';
-  const requirement = startRequirement(
-    players.length,
-    state.settings.impostors,
-  );
+  const requirement = lobbyRequirement(players, state.settings.impostors);
   startButton.hidden = !own.isHost;
   startButton.disabled = !inLobby || Boolean(requirement);
   element('#launch-title').textContent = !inLobby

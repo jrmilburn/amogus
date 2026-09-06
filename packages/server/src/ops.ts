@@ -41,7 +41,10 @@ export function installAdmin(app: Express) {
     if (!timingSafeEqual(digest(credentials), digest(`admin:${password}`)))
       return void res
         .status(401)
-        .set('WWW-Authenticate', 'Basic realm="Mutiny host", charset="UTF-8"')
+        .set(
+          'WWW-Authenticate',
+          'Basic realm="Theimposterissus host", charset="UTF-8"',
+        )
         .send('Host authentication required.');
     next();
   });
@@ -55,7 +58,7 @@ export function installAdmin(app: Express) {
     res
       .type('html')
       .send(
-        `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mutiny · Host station</title><style>body{font:16px/1.5 'Trebuchet MS',sans-serif;background:#091219;color:#dde6e4;max-width:980px;margin:40px auto;padding:0 20px}h1{color:#99ddcc}table{border-collapse:collapse;width:100%}th,td{padding:12px;text-align:left;border-bottom:1px solid #71888e}button{font:inherit;min-height:44px;background:#f59185;color:#182124;border:0;padding:8px 16px;cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #f3c681;outline-offset:3px}a{color:#99ddcc}form{display:flex;flex-wrap:wrap;gap:12px;align-items:center}label{display:flex;align-items:center;min-height:44px}input{width:20px;height:20px}section{overflow:auto}caption{text-align:left;padding:16px 0}p{max-width:70ch}</style><h1>Host station</h1><p>${liveRooms.size} / ${maxRooms()} rooms · server up ${Math.floor(process.uptime() / 60)} minutes.</p><p>Closing a room disconnects everyone and discards its round. This cannot be undone.</p><p><a href="/admin">Refresh room list</a></p><section aria-label="Live rooms"><table><caption>Active rooms</caption><thead><tr><th>Code</th><th>Players</th><th>Phase</th><th>Uptime</th><th>Host action</th></tr></thead><tbody>${rows || '<tr><td colspan="5">No rooms running. Create one from the game.</td></tr>'}</tbody></table></section></html>`,
+        `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Theimposterissus · Host station</title><style>body{font:16px/1.5 'Trebuchet MS',sans-serif;background:#091219;color:#dde6e4;max-width:980px;margin:40px auto;padding:0 20px}h1{color:#99ddcc}table{border-collapse:collapse;width:100%}th,td{padding:12px;text-align:left;border-bottom:1px solid #71888e}button{font:inherit;min-height:44px;background:#f59185;color:#182124;border:0;padding:8px 16px;cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #f3c681;outline-offset:3px}a{color:#99ddcc}form{display:flex;flex-wrap:wrap;gap:12px;align-items:center}label{display:flex;align-items:center;min-height:44px}input{width:20px;height:20px}section{overflow:auto}caption{text-align:left;padding:16px 0}p{max-width:70ch}</style><h1>Host station</h1><p>${liveRooms.size} / ${maxRooms()} rooms · server up ${Math.floor(process.uptime() / 60)} minutes.</p><p>Closing a room disconnects everyone and discards its round. This cannot be undone.</p><p><a href="/admin">Refresh room list</a></p><section aria-label="Live rooms"><table><caption>Active rooms</caption><thead><tr><th>Code</th><th>Players</th><th>Phase</th><th>Uptime</th><th>Host action</th></tr></thead><tbody>${rows || '<tr><td colspan="5">No rooms running. Create one from the game.</td></tr>'}</tbody></table></section></html>`,
       );
   });
   app.post(
