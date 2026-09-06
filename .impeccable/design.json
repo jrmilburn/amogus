@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-06T04:54:40.901Z",
+  "title": "Design System: Theimposterissus station interface",
+  "extensions": {
+    "shadows": [],
+    "motion": [
+      {
+        "name": "control-state",
+        "value": "160ms ease",
+        "purpose": "Background and border transitions; removed for reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact",
+        "value": "600px"
+      },
+      {
+        "name": "medium",
+        "value": "900px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Amber action with a touch-sized target.",
+      "html": "<button class=\"ds-primary\">Create game</button>",
+      "css": ".ds-primary{min-height:48px;padding:12px 20px;border:1px solid transparent;border-radius:6px;font:700 16px 'Trebuchet MS',sans-serif;cursor:pointer;background:var(--accent,#e6a65a);color:#182124}.ds-primary:hover{background:#f0bc7c}.ds-primary:active{background:#d49144}.ds-primary:focus-visible{outline:2px solid #f0bc7c;outline-offset:4px}"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "description": "Quiet alternatives.",
+      "html": "<button class=\"ds-secondary\">Walk around</button>",
+      "css": ".ds-secondary{min-height:48px;padding:12px 20px;border:1px solid transparent;border-radius:6px;font:700 16px 'Trebuchet MS',sans-serif;cursor:pointer;background:transparent;color:#dde6e4;border-color:var(--line,#425358)}.ds-secondary:hover{background:#2e3c41}.ds-secondary:focus-visible{outline:2px solid #f0bc7c;outline-offset:4px}"
+    },
+    {
+      "name": "Text action",
+      "kind": "button",
+      "description": "Lower-priority navigation.",
+      "html": "<button class=\"ds-text\">Leave room</button>",
+      "css": ".ds-text{min-height:48px;padding:12px 20px;border:1px solid transparent;border-radius:6px;font:700 16px 'Trebuchet MS',sans-serif;cursor:pointer;padding-inline:0;background:transparent;color:#dde6e4;text-decoration:underline;text-underline-offset:4px}.ds-text:hover{background:#2e3c41}.ds-text:focus-visible{outline:2px solid #f0bc7c;outline-offset:4px}"
+    },
+    {
+      "name": "Name input",
+      "kind": "input",
+      "description": "Native labeled nickname field.",
+      "html": "<label class=\"ds-label\" for=\"ds-name\">Your name</label><input class=\"ds-input\" id=\"ds-name\" autocomplete=\"nickname\" placeholder=\"Engineer\"/>",
+      "css": ".ds-label{display:block;margin-bottom:10px;color:#dde6e4;font:700 15px 'Trebuchet MS',sans-serif}.ds-input{min-height:48px;padding:10px 14px;border:1px solid var(--line,#425358);border-radius:6px;background:#111a1d;color:#dde6e4;font:16px 'Trebuchet MS',sans-serif}.ds-input::placeholder{color:#9aa9ad}.ds-input:focus-visible{outline:2px solid #f0bc7c;outline-offset:4px}"
+    },
+    {
+      "name": "Entry modes",
+      "kind": "nav",
+      "description": "Explicit Create/Join selection, not separate submitting controls.",
+      "html": "<div class=\"ds-modes\" role=\"group\" aria-label=\"Create or join\"><button aria-pressed=\"true\">Create a game</button><button aria-pressed=\"false\">Join a game</button></div>",
+      "css": ".ds-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ds-modes button{min-height:48px;padding:12px 20px;border:1px solid transparent;border-radius:6px;font:700 16px 'Trebuchet MS',sans-serif;cursor:pointer;padding-inline:8px;background:transparent;color:#dde6e4;border-color:var(--line,#425358)}.ds-modes button[aria-pressed=true]{background:#2d393b;border-color:var(--accent,#e6a65a);color:var(--accent,#e6a65a)}.ds-modes button:hover{background:#2e3c41}.ds-modes button:focus-visible{outline:2px solid #f0bc7c;outline-offset:4px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Theimposterissus station interface",
+    "overview": "The station palette and original engineer art remain the visual foundation. Redesign the entry and waiting-room composition, not the game's identity. This is a task-focused interface used on personal screens while friends organize a game; legible dark station surfaces keep it consistent with gameplay.",
+    "keyCharacteristics": [
+      "Dark station surfaces",
+      "Amber actions",
+      "Named and numbered crew colours"
+    ],
+    "rules": [],
+    "dos": [
+      "Do preserve native form semantics, visible focus and reduced-motion alternatives.",
+      "Do use named/numbered colours alongside swatches."
+    ],
+    "donts": [
+      "Do not turn the entry flow into a settings dashboard or require cosmetic choices before joining.",
+      "Do not imply a game has started when the user has only created a lobby."
+    ]
+  }
+}

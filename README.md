@@ -1,4 +1,4 @@
-# Mutiny
+# Theimposterissus
 
 An original browser social deduction game for 4–10 players. Built with an authoritative Colyseus server and a PixiJS v8 client. The current build supports private lobbies: create/join by code, invite links, live names/colours/readiness, host settings, and host transfer. Lobby members can walk around The Hollow together with desktop or touch controls. Roles, tasks, and game rounds are not implemented yet. See [plan.md](plan.md) for the roadmap and [completed.md](completed.md) for progress and resume notes.
 

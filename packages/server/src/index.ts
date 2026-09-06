@@ -7,7 +7,7 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 }
 const { gameServer } = createGameServer();
 await gameServer.listen(port, '0.0.0.0');
-log.info({ event: 'server.started', port }, 'Mutiny listening');
+log.info({ event: 'server.started', port }, 'Theimposterissus listening');
 let stopping = false;
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
   process.on(signal, () => {
